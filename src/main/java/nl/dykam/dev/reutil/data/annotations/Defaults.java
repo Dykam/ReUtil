@@ -1,17 +1,17 @@
 package nl.dykam.dev.reutil.data.annotations;
 
+import java.lang.annotation.*;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
 public @interface Defaults {
-    /**
-     * Whether to automatically instantiate the component when requested.
-     * @return Whether to automatically instantiate the component when requested
-     */
-    boolean autoInstance() default true;
 
     /**
-     * Whether multiple instances of this component are allowed on one object.
-     * @return Whether multiple instances of this component are allowed on one object
+     * When to construct the Component.
+     * @return When to construct the Component
      */
-    boolean multiple() default false;
+    Instantiation instantiation() default Instantiation.Lazy;
 
     /**
      * Whether an instance of this component should be shared accross plugins.
