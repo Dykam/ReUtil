@@ -14,13 +14,13 @@ class MapComponentStorage implements ComponentStorage {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Component> T get(Object object, Class<T> type) {
-        return (T) getComponentMap(object, type).get(type);
+        return (T) getComponentMap(object).get(type);
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Component> ComponentMap getComponentMap(Object object, Class<T> type) {
-        if(!map.containsKey(type))
-            map.put(type, new ComponentMap());
+    private ComponentMap getComponentMap(Object object) {
+        if(!map.containsKey(object))
+            map.put(object, new ComponentMap());
         return map.get(object);
     }
 
@@ -41,7 +41,7 @@ class MapComponentStorage implements ComponentStorage {
 
     @Override
     public <T extends Component> void set(Object object, Class<T> type, T component) {
-        ComponentMap componentMap = getComponentMap(object, type);
+        ComponentMap componentMap = getComponentMap(object);
         componentMap.put(type, component);
     }
 
@@ -63,7 +63,7 @@ class MapComponentStorage implements ComponentStorage {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Component> T remove(Object object, Class<T> type) {
-        ComponentMap componentMap = getComponentMap(object, type);
+        ComponentMap componentMap = getComponentMap(object);
         return (T) componentMap.remove(type);
     }
 
