@@ -17,14 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReUtil {
-    private static Plugin reUtilPlugin;
+    private static StubPlugin stubPlugin = new StubPlugin();
 
-    private static Plugin getReUtilPlugin() {
-        if(reUtilPlugin == null) {
-            reUtilPlugin = new ReUtilPlugin();
-            Bukkit.getPluginManager().enablePlugin(reUtilPlugin);
-        }
-        return reUtilPlugin;
+    public static Plugin getPlugin() {
+        return stubPlugin;
     }
 
     public static void registerEvents(Listener listener, Plugin plugin) {
@@ -134,6 +130,6 @@ public class ReUtil {
     }
 
     public static void registerPersistentEvents(Listener listener) {
-        registerEvents(listener, getReUtilPlugin());
+        registerEvents(listener, stubPlugin);
     }
 }
