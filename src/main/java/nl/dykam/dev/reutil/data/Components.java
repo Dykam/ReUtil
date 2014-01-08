@@ -49,6 +49,9 @@ public class Components {
     private static Listeners listeners = new Listeners();
     private static Map<Plugin, Components> componentsCache = new HashMap<>();
 
+    public <T extends Component> ComponentHandle<T> get(Class<T> type) {
+        return new ComponentHandle<>(this, type);
+    }
     static {
         ReUtil.registerPersistentEvents(listeners);
     }
@@ -63,9 +66,6 @@ public class Components {
         return componentsCache.get(plugin);
     }
 
-    public <T extends Component> ComponentHandle<T> get(Class<T> type) {
-        return new ComponentHandle<>(this, type);
-    }
 
     private static class Listeners implements Listener {
         @EventHandler
