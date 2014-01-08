@@ -52,12 +52,14 @@ public class Components {
     public <T extends Component> ComponentHandle<T> get(Class<T> type) {
         return new ComponentHandle<>(this, type);
     }
+
     static {
         ReUtil.registerPersistentEvents(listeners);
+        componentsCache.put(ReUtil.getPlugin(), new Components(ReUtil.getPlugin()));
     }
 
     public static Components getGlobal() {
-        return componentsCache.get(null);
+        return componentsCache.get(ReUtil.getPlugin());
     }
 
     public static Components get(Plugin plugin) {
