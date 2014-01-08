@@ -21,7 +21,7 @@ public class Components {
     public <T extends Component> T get(Object object, Class<T> type) {
         T component = storage.get(object, type);
         if(component == null)
-            getGlobal().storage.get(object, type);
+            component = getGlobal().storage.get(object, type);
         if(component == null && ComponentInfo.getDefaults(type).instantiation() != Instantiation.Manual)
             component = constructAndAdd(this, object, type);
         return component;
