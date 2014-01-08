@@ -7,5 +7,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface ApplicableTo {
-    ObjectType[] value() default { ObjectType.Block, ObjectType.Chunk, ObjectType.Player };
+    ObjectType[] value() default { /*ObjectType.Block, *//*ObjectType.Chunk, */ObjectType.Player };
 }
