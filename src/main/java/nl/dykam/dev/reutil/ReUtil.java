@@ -14,29 +14,17 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 public class ReUtil {
-    private static StubPlugin stubPlugin = new StubPlugin();
-
-    public static Plugin getPlugin() {
-        return stubPlugin;
-    }
-
     public static void registerEvents(Listener listener, Plugin plugin) {
         Set<Method> methods = new HashSet<>();
         methods.addAll(Arrays.asList(listener.getClass().getDeclaredMethods()));
         for (Method method : methods) {
             tryRegisterEvent(listener, method, plugin);
         }
-        if(plugin != stubPlugin)
-            Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 
     private static void tryRegisterEvent(Listener listener, Method method, Plugin plugin) {
-        boolean ignoreCancelled;
-        EventPriority priority;
-        EventHandlerAnalyzer eventHandlerAnalyzer = new EventHandlerAnalyzer(method, plugin).invoke();
-        if (!eventHandlerAnalyzer.isEvent()) return;
-        priority = eventHandlerAnalyzer.getPriority();
-        ignoreCancelled = eventHandlerAnalyzer.isIgnoreCancelled();
+        AutoEventHandler eventHandler = method.getAnnotation(AutoEventHandler.class);
+        if (eventHandler == null) return;
 
         if(method.isSynthetic()) {
             return;
@@ -50,7 +38,7 @@ public class ReUtil {
         if(parameterTypes.length == 0 || !Event.class.isAssignableFrom(parameterTypes[0])) {
             Bukkit.getLogger().severe(plugin.getDescription().getFullName() + " attempted to register an invalid AutoEventHandler method signature \"" + method.toGenericString() + "\" in " + listener.getClass());
             return;
-        } else if(parameterTypes.length == 1 && plugin != stubPlugin) {
+        } else if(parameterTypes.length == 1) {
             Bukkit.getLogger().warning(plugin.getDescription().getFullName() + " attempted to register an EventHandler method signature \"" + method.toGenericString() + "\" as AutoEventHandler in " + listener.getClass());
         }
 
@@ -114,7 +102,7 @@ public class ReUtil {
                 }
             }
         };
-        Bukkit.getPluginManager().registerEvent(eventType, listener, priority, executor, plugin, ignoreCancelled);
+        Bukkit.getPluginManager().registerEvent(eventType, listener, eventHandler.priority(), executor, plugin, eventHandler.ignoreCancelled());
     }
 
     private static MethodHandle getMethod(Class<? extends Event> eventType, Class<?> type, String bindName) {
@@ -138,52 +126,5 @@ public class ReUtil {
             name,
             "get" + Character.toUpperCase(name.charAt(0)) + name.substring(1),
         };
-    }
-
-    public static void registerPersistentEvents(Listener listener) {
-        registerEvents(listener, stubPlugin);
-    }
-
-    private static class EventHandlerAnalyzer {
-        private boolean isEvent;
-        private Method method;
-        private Plugin plugin;
-        private boolean ignoreCancelled;
-        private EventPriority priority;
-
-        public EventHandlerAnalyzer(Method method, Plugin plugin) {
-            this.method = method;
-            this.plugin = plugin;
-        }
-
-        boolean isEvent() {
-            return isEvent;
-        }
-
-        public boolean isIgnoreCancelled() {
-            return ignoreCancelled;
-        }
-
-        public EventPriority getPriority() {
-            return priority;
-        }
-
-        public EventHandlerAnalyzer invoke() {
-            AutoEventHandler handler;
-            EventHandler alternative;
-
-            if((handler = method.getAnnotation(AutoEventHandler.class)) != null) {
-                ignoreCancelled = handler.ignoreCancelled();
-                priority = handler.priority();
-            } else if(plugin == stubPlugin && (alternative = method.getAnnotation(EventHandler.class)) != null) {
-                ignoreCancelled = alternative.ignoreCancelled();
-                priority = alternative.priority();
-            } else {
-                isEvent = false;
-                return this;
-            }
-            isEvent = true;
-            return this;
-        }
     }
 }

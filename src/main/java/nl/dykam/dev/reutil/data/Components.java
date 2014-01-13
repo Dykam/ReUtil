@@ -1,6 +1,7 @@
 package nl.dykam.dev.reutil.data;
 
 import nl.dykam.dev.reutil.ReUtil;
+import nl.dykam.dev.reutil.ReUtilPlugin;
 import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -54,12 +55,11 @@ public class Components {
     }
 
     static {
-        ReUtil.registerPersistentEvents(listeners);
-        componentsCache.put(ReUtil.getPlugin(), new Components(ReUtil.getPlugin()));
+        componentsCache.put(ReUtilPlugin.instance(), new Components(ReUtilPlugin.instance()));
     }
 
     public static Components getGlobal() {
-        return componentsCache.get(ReUtil.getPlugin());
+        return componentsCache.get(ReUtilPlugin.instance());
     }
 
     public static Components get(Plugin plugin) {
