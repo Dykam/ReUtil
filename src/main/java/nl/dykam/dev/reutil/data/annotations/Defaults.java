@@ -23,5 +23,5 @@ public @interface Defaults {
      * How long a Component will exist.
      * @return How long a Component will exist.
      */
-    ComponentLifespan lifespan() default ComponentLifespan.Plugin;
+    Lifespan lifespan() default Lifespan.Object;
 }

@@ -1,6 +1,7 @@
 package nl.dykam.dev.reutil.data.annotations;
 
-public enum ComponentLifespan {
+public enum Lifespan {
     Plugin,
-    Server
+    Server,
+    Object
 }

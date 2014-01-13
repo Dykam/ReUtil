@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Persistent {
     PersistencyType value();
+    SaveMoment saveMoment() default SaveMoment.PluginUnload;
 }
