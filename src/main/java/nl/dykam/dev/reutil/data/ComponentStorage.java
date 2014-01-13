@@ -4,7 +4,7 @@ import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-interface ComponentStorage {
+interface ComponentStorage extends Iterable<Component> {
     public <T extends Component> T get(Object object, Class<T> type);
     public <T extends Component> T get(Player player, Class<T> type);
     public <T extends Component> T get(Chunk chunk, Class<T> type);

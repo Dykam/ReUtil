@@ -1,9 +1,6 @@
 package nl.dykam.dev.reutil.data;
 
-import nl.dykam.dev.reutil.data.annotations.ApplicableTo;
-import nl.dykam.dev.reutil.data.annotations.Defaults;
-import nl.dykam.dev.reutil.data.annotations.ObjectType;
-import nl.dykam.dev.reutil.data.annotations.Require;
+import nl.dykam.dev.reutil.data.annotations.*;
 
 import java.lang.reflect.Array;
 
@@ -12,6 +9,7 @@ class ComponentInfo {
     public static final ObjectType[] ALL_OBJECT_TYPES = ObjectType.values();
     @SuppressWarnings("unchecked")
     public static final Class<? extends Component>[] NO_CLASSES = (Class<? extends Component>[]) Array.newInstance(Class.class, 0);
+    private static final SaveMoment[] DEFAULT_SAVE_MOMENTS = {SaveMoment.PluginUnload};
 
     public static <T extends Component> Defaults getDefaults(Class<T> type) {
         return type.getAnnotation(Defaults.class);
@@ -30,5 +28,14 @@ class ComponentInfo {
     public static <T extends Component> Class<? extends Component>[] getRequired(Class<T> type) {
         Require annotation = type.getAnnotation(Require.class);
         return annotation == null ? NO_CLASSES : annotation.value();
+    }
+
+    public static SaveMoment[] getSaveMoments(Component component) {
+        Persistent annotation = component.getClass().getAnnotation(Persistent.class);
+        return annotation == null ? DEFAULT_SAVE_MOMENTS : annotation.value();
+    }
+
+    public static Defaults getDefaults(Component component) {
+        return getDefaults(component.getClass());
     }
 }

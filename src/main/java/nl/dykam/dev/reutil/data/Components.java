@@ -3,7 +3,9 @@ package nl.dykam.dev.reutil.data;
 import nl.dykam.dev.reutil.ReUtil;
 import nl.dykam.dev.reutil.ReUtilPlugin;
 import nl.dykam.dev.reutil.data.annotations.Instantiation;
-import org.bukkit.event.EventHandler;
+import nl.dykam.dev.reutil.data.annotations.SaveMoment;
+import nl.dykam.dev.reutil.events.AutoEventHandler;
+import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
@@ -14,15 +16,19 @@ import java.util.Map;
 public class Components {
     private final Plugin plugin;
     private final ComponentStorage storage = new MapComponentStorage();
+    private final ComponentConfig componentConfig;
 
     public Components(Plugin plugin) {
         this.plugin = plugin;
+        componentConfig = new ComponentConfig(plugin);
     }
 
     public <T extends Component> T get(Object object, Class<T> type) {
         T component = storage.get(object, type);
         if(component == null)
             component = getGlobal().storage.get(object, type);
+        if(component == null)
+            component = ComponentLoader.loadComponent(object, this, type);
         if(component == null && ComponentInfo.getDefaults(type).instantiation() != Instantiation.Manual)
             component = constructAndAdd(this, object, type);
         return component;
@@ -43,11 +49,18 @@ public class Components {
         storage.set(object, type, component);
     }
 
+    public ComponentConfig config() {
+        return componentConfig;
+    }
+
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
     private static <T extends Component> T constructAndAdd(Components context, Object object, Class<T> type) {
         return ComponentBuilder.getBuilder(type).constructAndAdd(context, object);
     }
 
-    private static Listeners listeners = new Listeners();
     private static Map<Plugin, Components> componentsCache = new HashMap<>();
 
     public <T extends Component> ComponentHandle<T> get(Class<T> type) {
@@ -56,6 +69,7 @@ public class Components {
 
     static {
         componentsCache.put(ReUtilPlugin.instance(), new Components(ReUtilPlugin.instance()));
+        ReUtil.registerEvents(new Listeners(), ReUtilPlugin.instance());
     }
 
     public static Components getGlobal() {
@@ -68,11 +82,21 @@ public class Components {
         return componentsCache.get(plugin);
     }
 
-
     private static class Listeners implements Listener {
-        @EventHandler
-        private void onPluginDisable(PluginDisableEvent event) {
-            componentsCache.remove(event.getPlugin());
+
+        @AutoEventHandler
+        private void onPluginDisable(PluginDisableEvent event, Plugin plugin) {
+            Components components = componentsCache.remove(plugin);
+            if(components == null)
+                return;
+
+            for (Component component : components.storage) {
+                if(!ArrayUtils.contains(ComponentInfo.getSaveMoments(component), SaveMoment.PluginUnload))
+                    continue;
+
+                ComponentLoader.saveComponent(component);
+            }
+
         }
     }
 }

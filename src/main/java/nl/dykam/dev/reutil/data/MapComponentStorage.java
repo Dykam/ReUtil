@@ -4,8 +4,7 @@ import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 class MapComponentStorage implements ComponentStorage {
     // Quick&Dirty.
@@ -80,6 +79,40 @@ class MapComponentStorage implements ComponentStorage {
     @Override
     public <T extends Component> T remove(Block block, Class<T> type) {
         return remove((Object)block, type);
+    }
+
+    @Override
+    public Iterator<Component> iterator() {
+        return new Iterator<Component>() {
+            private Iterator<ComponentMap> mapIterator;
+            private Iterator<Component> componentIterator;
+
+            {
+                mapIterator = map.values().iterator();
+                componentIterator = mapIterator.next().values().iterator();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return componentIterator.hasNext() || mapIterator.hasNext();
+            }
+
+            @Override
+            public Component next() {
+                if(componentIterator.hasNext())
+                    return componentIterator.next();
+                if(!mapIterator.hasNext())
+                    throw new NoSuchElementException();
+
+                componentIterator = mapIterator.next().values().iterator();
+                return next();
+            }
+
+            @Override
+            public void remove() {
+
+            }
+        };
     }
 
     /**

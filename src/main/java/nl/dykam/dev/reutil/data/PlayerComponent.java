@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 
 @ApplicableTo(ObjectType.Player)
 public abstract class PlayerComponent extends Component {
-    private Player player;
+    private transient Player player;
 
     @Override
     protected void onInitialize(Object object) {

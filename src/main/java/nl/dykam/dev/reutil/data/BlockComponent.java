@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 
 //@ApplicableTo(ObjectType.Block)
 //public abstract class BlockComponent extends Component {
-//    private Block block;
+//    private transient Block block;
 //
 //    @Override
 //    protected void onInitialize(Object object) {

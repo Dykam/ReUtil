@@ -6,7 +6,7 @@ import org.bukkit.Chunk;
 
 //@ApplicableTo(ObjectType.Chunk)
 //public abstract class ChunkComponent extends Component {
-//    private Chunk chunk;
+//    private transient Chunk chunk;
 //
 //    @Override
 //    protected void onInitialize(Object object) {
