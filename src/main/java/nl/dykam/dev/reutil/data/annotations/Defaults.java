@@ -18,4 +18,10 @@ public @interface Defaults {
      * @return Whether an instance of this component should be shared accross plugins
      */
     boolean global() default true;
+
+    /**
+     * How long a Component will exist.
+     * @return How long a Component will exist.
+     */
+    ComponentLifespan lifespan() default ComponentLifespan.Plugin;
 }
