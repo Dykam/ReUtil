@@ -32,7 +32,7 @@ class PlayerComponentLoader extends ComponentLoader {
         if(configuration == null)
             return null;
         try {
-        return (T) configuration.get(type.getName());
+            return (T) configuration.get(type.getName());
         } catch (ClassCastException ex) {
             ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "Failed to load component of " + context.getPlugin().getName());
             return null;
