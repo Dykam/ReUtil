@@ -1,11 +1,13 @@
 package nl.dykam.dev.reutil.data;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 class MapComponentStorage implements ComponentStorage {
     // Quick&Dirty.

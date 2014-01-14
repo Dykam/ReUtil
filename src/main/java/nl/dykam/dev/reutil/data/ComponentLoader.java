@@ -4,7 +4,6 @@ import nl.dykam.dev.reutil.ReUtilPlugin;
 import nl.dykam.dev.reutil.data.annotations.Defaults;
 import nl.dykam.dev.reutil.data.annotations.ObjectType;
 import nl.dykam.dev.reutil.data.annotations.Persistent;
-import nl.dykam.dev.reutil.data.annotations.SaveMoment;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;

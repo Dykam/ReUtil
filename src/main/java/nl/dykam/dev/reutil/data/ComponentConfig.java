@@ -1,7 +1,6 @@
 package nl.dykam.dev.reutil.data;
 
 import nl.dykam.dev.reutil.ReUtilPlugin;
-import nl.dykam.dev.reutil.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;

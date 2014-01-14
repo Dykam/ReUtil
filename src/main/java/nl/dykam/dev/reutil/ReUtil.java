@@ -3,7 +3,9 @@ package nl.dykam.dev.reutil;
 import nl.dykam.dev.reutil.events.AutoEventHandler;
 import nl.dykam.dev.reutil.events.Bind;
 import org.bukkit.Bukkit;
-import org.bukkit.event.*;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 
