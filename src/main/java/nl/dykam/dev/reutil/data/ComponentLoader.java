@@ -1,6 +1,13 @@
 package nl.dykam.dev.reutil.data;
 
+import nl.dykam.dev.reutil.ReUtilPlugin;
+import nl.dykam.dev.reutil.data.annotations.Defaults;
 import nl.dykam.dev.reutil.data.annotations.ObjectType;
+import nl.dykam.dev.reutil.data.annotations.Persistent;
+import nl.dykam.dev.reutil.data.annotations.SaveMoment;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.io.File;
 import java.util.EnumMap;
@@ -17,7 +24,7 @@ abstract class ComponentLoader {
         return context.getPlugin().getDataFolder().toPath()
                 .resolve(context.config().getLocation())
                 .resolve(key)
-                .resolve(type.getSimpleName() + ".yml").toFile();
+                .resolve(type.getName() + ".yml").toFile();
     }
 
     static {
@@ -30,8 +37,35 @@ abstract class ComponentLoader {
         loaders.get(type).save(component);
     }
 
-    static <T extends Component> T loadComponent(Object object, Components context, Class<T> componentType) {
+    static <T extends Component> T loadComponent(Components context, Object object, Class<T> componentType) {
+        if(!register(componentType))
+            return null;
         ObjectType type = ObjectType.getType(object);
-        return loaders.get(type).load(object, context, componentType);
+        T component = loaders.get(type).load(object, context, componentType);
+        component.initialize(object, context);
+        return component;
+    }
+
+    private static <T extends Component> boolean register(Class<T> componentType) {
+        Persistent annotation = componentType.getAnnotation(Persistent.class);
+        if(annotation == null)
+            return false;
+        if(!ConfigurationSerializable.class.isAssignableFrom(componentType)) {
+            ReUtilPlugin.getMessage().failure(Bukkit.getConsoleSender(), "ConfigurationSerializable not implemented by @Persistent " + componentType.getName());
+            return false;
+        }
+        ReUtilPlugin.getMessage().success(Bukkit.getConsoleSender(), "Registered " + componentType.getName());
+        ConfigurationSerialization.registerClass(componentType.asSubclass(ConfigurationSerializable.class), componentType.getName());
+        return true;
+    }
+
+    public static <T extends Component> T loadAndAdd(Components context, Object object, Class<T> type) {
+        T component = loadComponent(context, object, type);
+        if(component == null)
+            return null;
+        Defaults defaults = ComponentInfo.getDefaults(type);
+        Components scope = defaults.global() ? Components.getGlobal() : context;
+        scope.set(object, type, component);
+        return component;
     }
 }

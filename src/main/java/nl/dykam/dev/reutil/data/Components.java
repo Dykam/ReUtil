@@ -5,6 +5,7 @@ import nl.dykam.dev.reutil.ReUtilPlugin;
 import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
 import nl.dykam.dev.reutil.events.AutoEventHandler;
+import nl.dykam.dev.reutil.events.Bind;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -28,7 +29,7 @@ public class Components {
         if(component == null)
             component = getGlobal().storage.get(object, type);
         if(component == null)
-            component = ComponentLoader.loadComponent(object, this, type);
+            component = ComponentLoader.loadAndAdd(this, object, type);
         if(component == null && ComponentInfo.getDefaults(type).instantiation() != Instantiation.Manual)
             component = constructAndAdd(this, object, type);
         return component;
