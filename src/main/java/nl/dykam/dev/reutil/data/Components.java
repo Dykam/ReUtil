@@ -85,7 +85,7 @@ public class Components {
     private static class Listeners implements Listener {
 
         @AutoEventHandler
-        private void onPluginDisable(PluginDisableEvent event, Plugin plugin) {
+        private void onPluginDisable(PluginDisableEvent event, @Bind("plugin") Plugin plugin) {
             Components components = componentsCache.remove(plugin);
             if(components == null)
                 return;
