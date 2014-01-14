@@ -82,6 +82,9 @@ public class ReUtil {
         EventExecutor executor = new EventExecutor() {
             @Override
             public void execute(Listener listener, Event event) throws EventException {
+                if (!eventType.isAssignableFrom(event.getClass())) {
+                    return;
+                }
                 Object[] params = new Object[handles.length + 2];
                 params[0] = listener;
                 params[1] = event;
