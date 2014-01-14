@@ -1,5 +1,6 @@
 package nl.dykam.dev.reutil.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -89,28 +90,30 @@ class MapComponentStorage implements ComponentStorage {
 
             {
                 mapIterator = map.values().iterator();
-                componentIterator = mapIterator.next().values().iterator();
             }
 
             @Override
             public boolean hasNext() {
-                return componentIterator.hasNext() || mapIterator.hasNext();
+                if(componentIterator != null && componentIterator.hasNext())
+                    return true;
+                if(!mapIterator.hasNext())
+                    return false;
+                componentIterator = mapIterator.next().values().iterator();
+                return hasNext();
             }
 
             @Override
             public Component next() {
-                if(componentIterator.hasNext())
-                    return componentIterator.next();
-                if(!mapIterator.hasNext())
+                if(!hasNext())
                     throw new NoSuchElementException();
-
-                componentIterator = mapIterator.next().values().iterator();
-                return next();
+                return componentIterator.next();
             }
 
             @Override
             public void remove() {
-
+                if(!hasNext())
+                    throw new NoSuchElementException();
+                componentIterator.remove();
             }
         };
     }
