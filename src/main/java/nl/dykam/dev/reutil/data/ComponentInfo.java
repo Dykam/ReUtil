@@ -1,6 +1,9 @@
 package nl.dykam.dev.reutil.data;
 
+import nl.dykam.dev.reutil.ReUtilPlugin;
 import nl.dykam.dev.reutil.data.annotations.*;
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.lang.reflect.Array;
 
@@ -9,13 +12,13 @@ class ComponentInfo {
     public static final ObjectType[] ALL_OBJECT_TYPES = ObjectType.values();
     @SuppressWarnings("unchecked")
     public static final Class<? extends Component>[] NO_CLASSES = (Class<? extends Component>[]) Array.newInstance(Class.class, 0);
-    private static final SaveMoment[] DEFAULT_SAVE_MOMENTS = {SaveMoment.PluginUnload};
+    private static final SaveMoment[] DEFAULT_SAVE_MOMENTS = {};
 
     public static <T extends Component> Defaults getDefaults(Class<T> type) {
         return type.getAnnotation(Defaults.class);
     }
 
-    private static <T extends Component>  ComponentBuilder<T> getBuilder(Class<T> type) {
+    private static <T extends Component> ComponentBuilder<T> getBuilder(Class<T> type) {
         return ComponentBuilder.getBuilder(type);
     }
 
@@ -31,8 +34,15 @@ class ComponentInfo {
     }
 
     public static SaveMoment[] getSaveMoments(Component component) {
-        Persistent annotation = component.getClass().getAnnotation(Persistent.class);
-        return annotation == null ? DEFAULT_SAVE_MOMENTS : annotation.value();
+        Class<? extends Component> componentClass = component.getClass();
+        Persistent annotation = componentClass.getAnnotation(Persistent.class);
+        SaveMoment[] result = DEFAULT_SAVE_MOMENTS;
+        if(annotation == null) {
+            return DEFAULT_SAVE_MOMENTS;
+        } else if(!ConfigurationSerializable.class.isAssignableFrom(componentClass)) {
+            ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "ConfigurationSerializable not implemented by @Persistent " + componentClass.getName());
+        }
+        return annotation.value();
     }
 
     public static Defaults getDefaults(Component component) {
