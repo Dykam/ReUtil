@@ -33,19 +33,22 @@ class ComponentInfo {
         return annotation == null ? NO_CLASSES : annotation.value();
     }
 
-    public static SaveMoment[] getSaveMoments(Component component) {
-        Class<? extends Component> componentClass = component.getClass();
-        Persistent annotation = componentClass.getAnnotation(Persistent.class);
+    public static <T extends Component> SaveMoment[] getSaveMoments(Class<T> type) {
+        Persistent annotation = type.getAnnotation(Persistent.class);
         SaveMoment[] result = DEFAULT_SAVE_MOMENTS;
         if(annotation == null) {
             return DEFAULT_SAVE_MOMENTS;
-        } else if(!ConfigurationSerializable.class.isAssignableFrom(componentClass)) {
-            ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "ConfigurationSerializable not implemented by @Persistent " + componentClass.getName());
+        } else if(!ConfigurationSerializable.class.isAssignableFrom(type)) {
+            ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "ConfigurationSerializable not implemented by @Persistent " + type.getName());
         }
         return annotation.value();
     }
 
     public static Defaults getDefaults(Component component) {
         return getDefaults(component.getClass());
+    }
+
+    public static <T extends Component> boolean isPersistant(Class<T> type) {
+        return type.isAnnotationPresent(Persistent.class);
     }
 }

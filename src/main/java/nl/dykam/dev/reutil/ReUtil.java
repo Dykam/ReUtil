@@ -22,6 +22,7 @@ public class ReUtil {
         for (Method method : methods) {
             tryRegisterEvent(listener, method, plugin);
         }
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 
     private static void tryRegisterEvent(Listener listener, Method method, Plugin plugin) {
@@ -45,7 +46,6 @@ public class ReUtil {
         }
 
         final Class<? extends Event> eventType = parameterTypes[0].asSubclass(Event.class);
-        final Class<? extends Listener> listenerType = listener.getClass().asSubclass(Listener.class);
 
         final MethodHandle mainHandle;
         try {

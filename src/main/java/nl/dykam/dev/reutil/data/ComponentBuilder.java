@@ -40,7 +40,7 @@ public class ComponentBuilder<T extends Component> {
         return (ComponentBuilder<T>) builders.get(type);
     }
 
-    public T constructAndAdd(Components context, Object object) {
+    public T construct(ComponentManager context, Object object) {
         ObjectType objectType = ObjectType.getType(object);
         if(objectType == null)
             throw new IllegalArgumentException("object has to be a Player, Block or Chunk");
@@ -51,15 +51,14 @@ public class ComponentBuilder<T extends Component> {
             context.ensure(object, requiredComponent);
         }
 
+        T component;
         try {
-            T component = constructor.newInstance();
-            component.initialize(object, context);
-            Components scope = defaults.global() ? Components.getGlobal() : context;
-            scope.set(object, type, component);
-            return component;
+            component = constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException("This should never happen, report to developer.", e);
         }
+        component.initialize(object, context);
+        return component;
     }
 
     /**

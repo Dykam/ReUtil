@@ -1,1 +1,4 @@
+# # interval
+# Amount of time between component saving
 location: components
+interval: 300

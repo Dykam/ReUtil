@@ -14,4 +14,14 @@ public enum ObjectType {
 //            return ObjectType.Block;
         return null;
     }
+
+    public static ObjectType getType(Class<?> type) {
+        if(org.bukkit.entity.Player.class.isAssignableFrom(type))
+            return ObjectType.Player;
+//        if(org.bukkit.Chunk.class.isAssignableFrom(type))
+//            return ObjectType.Chunk;
+//        if(bukkit.block.Block.class.isAssignableFrom(type))
+//            return ObjectType.Block;
+        return null;
+    }
 }
