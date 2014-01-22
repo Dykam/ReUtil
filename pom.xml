@@ -7,6 +7,7 @@
     <groupId>nl.dykam.dev</groupId>
     <artifactId>ReUtil</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <description>REusable UTILity library - Advanced utilities for Bukkit</description>
 
     <properties>
         <plugin.prefix>${project.name}</plugin.prefix>

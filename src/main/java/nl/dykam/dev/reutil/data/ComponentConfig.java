@@ -1,7 +1,6 @@
 package nl.dykam.dev.reutil.data;
 
 import nl.dykam.dev.reutil.ReUtilPlugin;
-import nl.dykam.dev.reutil.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -16,6 +15,9 @@ public class ComponentConfig {
     private static YamlConfiguration yamlConfiguration;
     private final File componentConfig;
     private final YamlConfiguration config;
+
+    Callback updateListener;
+
     private final Plugin plugin;
 
     public ComponentConfig(Plugin plugin) {
@@ -26,6 +28,53 @@ public class ComponentConfig {
                 plugin.getName() + ".yml").toFile();
         config = YamlConfiguration.loadConfiguration(componentConfig);
         config.getRoot().setDefaults(getDefaults());
+        config.options().copyDefaults(true);
+        config.options().copyHeader(true);
+    }
+
+    public ComponentConfig(Plugin plugin, Callback updateListener) {
+        this(plugin);
+        this.updateListener = updateListener;
+    }
+
+    public int getInterval() {
+        return config.getInt("interval");
+    }
+
+    public void setInterval(int interval) {
+        set("interval", interval);
+    }
+
+    public String getLocation() {
+        return config.getString("location");
+    }
+
+    public void setLocation(String location) {
+        set("location", location);
+    }
+
+    public Callback getUpdateListener() {
+        return updateListener;
+    }
+
+    public void setUpdateListener(Callback updateListener) {
+        this.updateListener = updateListener;
+    }
+
+    public Plugin getPlugin() {
+        return plugin;
+    }
+
+    private void set(String key, Object value) {
+        config.set(key, value);
+        try {
+            config.save(componentConfig);
+        } catch (IOException e) {
+            ReUtilPlugin.getMessage().failure(Bukkit.getConsoleSender(), "Failed to store component configuration for " + plugin.getName());
+        }
+        if(updateListener != null) {
+            updateListener.call(key, value, this);
+        }
     }
 
     private static Configuration getDefaults() {
@@ -36,20 +85,7 @@ public class ComponentConfig {
         return yamlConfiguration;
     }
 
-    public void setLocation(String location) {
-        config.set("location", location);
-        save();
-    }
-
-    public String getLocation() {
-        return config.getString("location");
-    }
-
-    private void save() {
-        try {
-            config.save(componentConfig);
-        } catch (IOException e) {
-            ReUtilPlugin.getMessage().failure(Bukkit.getConsoleSender(), "Failed to store component configuration for " + plugin.getName());
-        }
+    public interface Callback {
+        void call(String key, Object value, ComponentConfig config);
     }
 }

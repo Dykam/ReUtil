@@ -21,7 +21,7 @@ public class Message {
 
     public Message(Plugin plugin, String tag, ChatColor color) {
         this.plugin = plugin;
-        this.tag = "[" + tag + "]";
+        this.tag = tag;
         this.color = color;
         updatePrefix();
     }

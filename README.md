@@ -1,4 +1,4 @@
 ReUtil
 ======
 
-Bukkit advanced utils
+REusable UTILity library - Advanced utilities for Bukkit

@@ -3,15 +3,17 @@ package nl.dykam.dev.reutil.data;
 import nl.dykam.dev.reutil.data.annotations.ApplicableTo;
 import nl.dykam.dev.reutil.data.annotations.Defaults;
 
-import java.beans.Transient;
-
 @Defaults
 @ApplicableTo
 public abstract class Component {
     private transient Object object;
-    private transient Components context;
+    private transient ComponentManager context;
 
-    void initialize(Object object, Components context) {
+    public Component() {
+
+    }
+
+    void initialize(Object object, ComponentManager context) {
         this.object = object;
         this.context = context;
 
@@ -24,7 +26,7 @@ public abstract class Component {
         return object;
     }
 
-    public Components getContext() {
+    public ComponentManager getContext() {
         return context;
     }
 }

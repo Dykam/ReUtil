@@ -20,6 +20,7 @@ public class EventManager {
         for (Method method : methods) {
             tryRegisterEvent(listener, method, plugin);
         }
+        Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 
     private static void tryRegisterEvent(Listener listener, Method method, Plugin plugin) {
@@ -43,7 +44,6 @@ public class EventManager {
         }
 
         final Class<? extends Event> eventType = parameterTypes[0].asSubclass(Event.class);
-        final Class<? extends Listener> listenerType = listener.getClass().asSubclass(Listener.class);
 
         final MethodHandle mainHandle;
         try {
@@ -55,14 +55,17 @@ public class EventManager {
         final MethodHandle[] handles = getParameterHandles(listener, method, plugin, parameterAnnotations, parameterTypes, eventType);
         if (handles == null) return;
 
-        EventExecutor executor = createEventExecutor(parameterTypes, mainHandle, handles);
+        EventExecutor executor = createEventExecutor(parameterTypes, eventType, mainHandle, handles);
         Bukkit.getPluginManager().registerEvent(eventType, listener, eventHandler.priority(), executor, plugin, eventHandler.ignoreCancelled());
     }
 
-    private static EventExecutor createEventExecutor(final Class<?>[] parameterTypes, final MethodHandle mainHandle, final MethodHandle[] handles) {
+    private static EventExecutor createEventExecutor(final Class<?>[] parameterTypes, final Class<? extends Event> eventType, final MethodHandle mainHandle, final MethodHandle[] handles) {
         return new EventExecutor() {
                 @Override
                 public void execute(Listener listener, Event event) throws EventException {
+                    if (!eventType.isAssignableFrom(event.getClass())) {
+                        return;
+                    }
                     Object[] params = new Object[handles.length + 2];
                     params[0] = listener;
                     params[1] = event;
