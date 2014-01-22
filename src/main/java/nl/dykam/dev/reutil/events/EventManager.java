@@ -1,5 +1,6 @@
 package nl.dykam.dev.reutil.events;
 
+import nl.dykam.dev.reutil.utils.Reflect;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
@@ -11,29 +12,19 @@ import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class EventManager {
     public static void registerEvents(Listener listener, Plugin plugin) {
-        Set<Method> methods = new HashSet<>();
-        methods.addAll(Arrays.asList(listener.getClass().getDeclaredMethods()));
-        for (Method method : methods) {
-            tryRegisterEvent(listener, method, plugin);
+        for (Map.Entry<Method, AutoEventHandler> entry : Reflect.getAnnotatedMethods(listener, AutoEventHandler.class).entrySet()) {
+            tryRegisterEvent(listener, entry.getKey(), entry.getValue(), plugin);
         }
         Bukkit.getPluginManager().registerEvents(listener, plugin);
     }
 
-    private static void tryRegisterEvent(Listener listener, Method method, Plugin plugin) {
-        AutoEventHandler eventHandler = method.getAnnotation(AutoEventHandler.class);
-        if (eventHandler == null) return;
-
-        if(method.isSynthetic()) {
-            return;
-        }
-        if(!method.isAccessible()) {
-            method.setAccessible(true);
-        }
-
+    private static void tryRegisterEvent(Listener listener, Method method, AutoEventHandler eventHandler, Plugin plugin) {
         final Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         final Class<?>[] parameterTypes = method.getParameterTypes();
         if(parameterTypes.length == 0 || !Event.class.isAssignableFrom(parameterTypes[0])) {
