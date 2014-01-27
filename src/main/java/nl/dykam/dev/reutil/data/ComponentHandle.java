@@ -4,36 +4,40 @@ import nl.dykam.dev.reutil.data.annotations.Defaults;
 import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
 
-public class ComponentHandle<T extends Component> {
+public class ComponentHandle<O, T extends Component<O>> {
     private final Class<T> type;
+
     private final Defaults defaults;
-
     private boolean persists;
-
     private SaveMoment[] saveMoments;
+
     private ComponentManager context;
     private ComponentBuilder<T> builder;
     private ComponentStorage<T> storage;
     private ComponentPersistence<T> persistence;
+    private ObjectInfo objectInfo;
+    private boolean smartSaving;
 
     public ComponentHandle(Class<T> type, ComponentManager context) {
-        this(type, context, null, null, null);
+        this(type, context, null, null, null, null);
     }
 
-    public ComponentHandle(Class<T> type, ComponentManager context, ComponentStorage<T> storage, ComponentPersistence<T> persistence, ComponentBuilder<T> builder) {
+    public ComponentHandle(Class<T> type, ComponentManager context, ComponentStorage<T> storage, ComponentPersistence<T> persistence, ComponentBuilder<T> builder, ObjectInfo objectInfo) {
         this.type = type;
         this.context = context;
 
         defaults = ComponentInfo.getDefaults(type);
         persists = ComponentInfo.isPersistant(type);
         saveMoments = ComponentInfo.getSaveMoments(type);
+        smartSaving = ComponentInfo.hasSmartPersistency(type);
 
         setBuilder(builder);
         setStorage(storage);
         setPersistence(persistence);
+        setObjectInfo(objectInfo);
     }
 
-    public T get(Object object) {
+    public T get(O object) {
         T component = storage.get(object);
         if(component != null)
             return component;
@@ -45,25 +49,33 @@ public class ComponentHandle<T extends Component> {
         return build(object);
     }
 
-    public T load(Object object) {
+    public T load(O object) {
         return putIfNotNull(object, persistence.load(object));
     }
 
-    public T build(Object object) {
+    public T build(O object) {
         return putIfNotNull(object, builder.construct(context, object));
     }
 
     public void saveAll() {
         for (T component : storage.components()) {
+            if(shouldSkipSave(component.getObject()))
+                continue;
             persistence.save(component);
         }
     }
 
-    public void save(Object object) {
+    public void save(O object) {
+        if(shouldSkipSave(object))
+            return;
         persistence.save(storage.get(object));
     }
 
-    private T putIfNotNull(Object object, T component) {
+    private boolean shouldSkipSave(O object) {
+        return smartSaving && !getObjectInfo().isPersistentObject(object);
+    }
+
+    private T putIfNotNull(O object, T component) {
         if(component == null)
             return null;
         storage.put(object, component);
@@ -78,7 +90,7 @@ public class ComponentHandle<T extends Component> {
         return defaults;
     }
 
-    public boolean isPersists() {
+    public boolean isPersistent() {
         return persists;
     }
 
@@ -118,8 +130,16 @@ public class ComponentHandle<T extends Component> {
         this.builder = builder != null ? builder : ComponentBuilder.getBuilder(type);
     }
 
-    public void ensure(Object object) {
+    public void ensure(O object) {
         if(storage.get(object) == null)
             build(object);
+    }
+
+    public ObjectInfo getObjectInfo() {
+        return objectInfo != null ? objectInfo : context.getObjectInfo();
+    }
+
+    public void setObjectInfo(ObjectInfo objectInfo) {
+        this.objectInfo = objectInfo;
     }
 }

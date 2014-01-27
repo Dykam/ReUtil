@@ -18,38 +18,45 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ComponentManager {
+    private ComponentManager parent;
     private final Plugin plugin;
     private final ComponentConfig componentConfig;
     private final HandleMap handles = new HandleMap();
     private BukkitTask saveIntervalRunner;
+    private ObjectInfo objectInfo;
 
-    public ComponentManager(Plugin plugin) {
+    private ComponentManager(ComponentManager parent, Plugin plugin) {
+        this.parent = parent;
         this.plugin = plugin;
         componentConfig = new ComponentConfig(plugin, new ConfigCallback());
         setTimeout(componentConfig.getInterval());
+        if(parent == null)
+            setObjectInfo(null); // Reset
     }
 
-    public <T extends Component> ComponentHandle<T> get(Class<T> type) {
-        ComponentHandle<T> handle = handles.get(type);
+    public <O, T extends Component<O>> ComponentHandle<O, T> get(Class<T> type) {
+        ComponentHandle<O, T> handle = handles.get(type);
         if(handle != null)
             return handle;
-        handle = getGlobal().handles.get(type);
-        if(handle != null)
-            return handle;
+        if(parent != null) {
+            handle = parent.handles.get(type);
+            if(handle != null)
+                return handle;
+        }
 
         return register(type);
     }
 
-    private <T extends Component> ComponentHandle<T> register(Class<T> type) {
+    private <O, T extends Component<O>> ComponentHandle<O, T> register(Class<T> type) {
         Defaults defaults = ComponentInfo.getDefaults(type);
         ComponentManager context = defaults.global() ? getGlobal() : this;
 
-        ComponentHandle<T> handle = new ComponentHandle<>(type, context);
+        ComponentHandle<O, T> handle = new ComponentHandle<>(type, context);
         context.handles.put(type, handle);
         return handle;
     }
 
-    public <T extends Component> T get(Object object, Class<T> type) {
+    public <O, T extends Component<O>> T get(O object, Class<T> type) {
         return get(type).get(object);
     }
 
@@ -68,7 +75,7 @@ public class ComponentManager {
     private static Map<Plugin, ComponentManager> componentsCache = new HashMap<>();
 
     static {
-        componentsCache.put(ReUtilPlugin.instance(), new ComponentManager(ReUtilPlugin.instance()));
+        componentsCache.put(ReUtilPlugin.instance(), new ComponentManager(null, ReUtilPlugin.instance()));
         ReUtil.registerEvents(new Listeners(), ReUtilPlugin.instance());
     }
 
@@ -78,14 +85,22 @@ public class ComponentManager {
 
     public static ComponentManager get(Plugin plugin) {
         if(!componentsCache.containsKey(plugin))
-            componentsCache.put(plugin, new ComponentManager(plugin));
+            componentsCache.put(plugin, new ComponentManager(getGlobal(), plugin));
         return componentsCache.get(plugin);
+    }
+
+    public ObjectInfo getObjectInfo() {
+        return objectInfo != null ? objectInfo : parent != null ? parent.objectInfo : null;
+    }
+
+    public void setObjectInfo(ObjectInfo objectInfo) {
+        this.objectInfo = objectInfo != null ? objectInfo : parent != null ? null : new ObjectInfo();
     }
 
     private static class Listeners implements Listener {
         @AutoEventHandler
         private void onPluginDisable(PluginDisableEvent event, @Bind("plugin") Plugin plugin) {
-            for (ComponentHandle<?> handle : get(plugin).handles.values()) {
+            for (ComponentHandle<?, ?> handle : get(plugin).handles.values()) {
                 if(ArrayUtils.contains(handle.getSaveMoments(), SaveMoment.PluginUnload))
                     handle.saveAll();
             }
@@ -108,7 +123,7 @@ public class ComponentManager {
         saveIntervalRunner = Bukkit.getScheduler().runTaskTimer(getPlugin(), new Runnable() {
             @Override
             public void run() {
-                for (ComponentHandle<?> handle : handles.values()) {
+                for (ComponentHandle<?, ?> handle : handles.values()) {
                     if(ArrayUtils.contains(handle.getSaveMoments(), SaveMoment.Interval))
                         handle.saveAll();
                 }
@@ -116,15 +131,15 @@ public class ComponentManager {
         }, interval, interval);
     }
 
-    private static class HandleMap extends HashMap<Class<? extends Component>, ComponentHandle<?>> {
+    private static class HandleMap extends HashMap<Class<? extends Component<?>>, ComponentHandle<?, ?>> {
         @SuppressWarnings("unchecked")
-        public <T extends Component> ComponentHandle<T> get(Class<T> key) {
-            ComponentHandle<?> handle = super.get(key);
-            return handle == null ? null : (ComponentHandle<T>) handle;
+        public <O, T extends Component<O>> ComponentHandle<O, T> get(Class<T> key) {
+            ComponentHandle<?, ? extends Component<?>> handle = super.get(key);
+            return handle == null ? null : (ComponentHandle<O, T>) handle;
         }
 
         @Override
-        public ComponentHandle<?> put(Class<? extends Component> key, ComponentHandle<?> value) {
+        public ComponentHandle<?, ? extends Component<?>> put(Class<? extends Component<?>> key, ComponentHandle<?, ? extends Component<?>> value) {
             if(!value.getType().equals(key))
                 throw new IllegalClassException(key, value);
             return super.put(key, value);

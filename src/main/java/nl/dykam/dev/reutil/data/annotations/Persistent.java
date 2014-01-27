@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Persistent {
     SaveMoment[] value() default { SaveMoment.PluginUnload };
+    boolean smart() default true;
 }

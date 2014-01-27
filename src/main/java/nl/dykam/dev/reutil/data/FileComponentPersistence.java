@@ -19,7 +19,8 @@ import java.io.NotSerializableException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FileComponentPersistence<T extends Component> implements ComponentPersistence<T> {
+public class FileComponentPersistence<T extends Component<?>> implements ComponentPersistence<T> {
+    private final Class<?> applicableTo;
     private ComponentManager context;
     private Class<T> type;
     private static Set<Class<? extends Component>> registred = new HashSet<>();
@@ -32,6 +33,7 @@ public class FileComponentPersistence<T extends Component> implements ComponentP
         }
         this.context = context;
         this.type = type;
+        applicableTo = ComponentInfo.getApplicableTo(type);
     }
 
     @Override
@@ -50,7 +52,7 @@ public class FileComponentPersistence<T extends Component> implements ComponentP
             return null;
         }
         if(component != null)
-            component.initialize(object, context);
+            component.initialize(object, applicableTo, context);
         return component;
     }
 
@@ -63,8 +65,9 @@ public class FileComponentPersistence<T extends Component> implements ComponentP
         try {
             configuration.save(file);
         } catch (IOException e) {
-            ReUtilPlugin.getMessage().failure(Bukkit.getConsoleSender(), "Failed to save component of " + context.getPlugin().getName());
+            ReUtilPlugin.getMessage().failure(Bukkit.getConsoleSender(), "Failed to save component of " + context.getPlugin().getName() + ": " + file.getAbsoluteFile());
         }
+        ReUtilPlugin.getMessage().success(Bukkit.getConsoleSender(), "Succeeded to save component of " + context.getPlugin().getName() + ": " + file.getAbsoluteFile());
     }
 
     protected static File getFile(ComponentManager context, Class<? extends Component> type, Object object) {
@@ -93,7 +96,7 @@ public class FileComponentPersistence<T extends Component> implements ComponentP
         throw new NotImplementedException("Only entities and blocks are supported");
     }
 
-    private static <T extends Component> void register(Class<T> type) throws NotSerializableException {
+    private static <T extends Component<?>> void register(Class<T> type) throws NotSerializableException {
         if(registred.contains(type))
             return;
         checkPersistable(type);
@@ -102,7 +105,7 @@ public class FileComponentPersistence<T extends Component> implements ComponentP
         registred.add(type);
     }
 
-    private static <T extends Component> void checkPersistable(Class<T> type) throws NotSerializableException {
+    private static <T> void checkPersistable(Class<T> type) throws NotSerializableException {
         Persistent annotation = type.getAnnotation(Persistent.class);
         if(annotation == null)
             throw new NotSerializableException("@Persistent not available on  " + type.getName());

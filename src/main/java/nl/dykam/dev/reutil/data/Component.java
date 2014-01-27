@@ -1,32 +1,37 @@
 package nl.dykam.dev.reutil.data;
 
-import nl.dykam.dev.reutil.data.annotations.ApplicableTo;
 import nl.dykam.dev.reutil.data.annotations.Defaults;
+import nl.dykam.dev.reutil.utiils.TypeUtils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Defaults
-@ApplicableTo
-public abstract class Component {
-    private transient Object object;
+public abstract class Component<T> {
+    private transient T object;
+    private transient Class<?> objectType;
     private transient ComponentManager context;
 
-    public Component() {
-
-    }
-
-    void initialize(Object object, ComponentManager context) {
-        this.object = object;
-        this.context = context;
-
-        onInitialize(object);
-    }
-
-    protected abstract void onInitialize(Object object);
-
-    public Object getObject() {
+    public T getObject() {
         return object;
     }
 
+    @SuppressWarnings("unchecked")
+    final void initialize(Object object, Class<?> objectType, ComponentManager context) {
+        this.objectType = objectType;
+        this.object = (T)object;
+        this.context = context;
+
+        onInitialize();
+    }
+
+    protected void onInitialize() {}
+
     public ComponentManager getContext() {
         return context;
+    }
+
+    public Class<?> getObjectType() {
+        return objectType;
     }
 }

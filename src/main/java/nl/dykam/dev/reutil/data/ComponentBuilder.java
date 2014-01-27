@@ -1,24 +1,20 @@
 package nl.dykam.dev.reutil.data;
 
 import nl.dykam.dev.reutil.data.annotations.Defaults;
-import nl.dykam.dev.reutil.data.annotations.ObjectType;
+import nl.dykam.dev.reutil.utiils.TypeUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
-public class ComponentBuilder<T extends Component> {
-    private final Class<T> type;
-    private final Defaults defaults;
+public class ComponentBuilder<T extends Component<?>> {
     private final Constructor<T> constructor;
-    private final ObjectType[] applicables;
+    private final Class<?> applicableTo;
     private final Class<? extends Component>[] required;
 
     public ComponentBuilder(Class<T> type) {
-        this.type = type;
-        defaults = ComponentInfo.getDefaults(type);
-        applicables = ComponentInfo.getApplicables(type);
+        applicableTo = ComponentInfo.getApplicableTo(type);
         required = ComponentInfo.getRequired(type);
         try {
             constructor = type.getConstructor();
@@ -34,18 +30,15 @@ public class ComponentBuilder<T extends Component> {
     private static ComponentMap builders = new ComponentMap();
 
     @SuppressWarnings("unchecked")
-    static <T extends Component> ComponentBuilder<T> getBuilder(Class<T> type) {
+    static <T extends Component<?>> ComponentBuilder<T> getBuilder(Class<T> type) {
         if(!builders.containsKey(type))
             builders.put(type, new ComponentBuilder<>(type));
         return (ComponentBuilder<T>) builders.get(type);
     }
 
     public T construct(ComponentManager context, Object object) {
-        ObjectType objectType = ObjectType.getType(object);
-        if(objectType == null)
-            throw new IllegalArgumentException("object has to be a Player, Block or Chunk");
-        if(!ArrayUtils.contains(applicables, objectType))
-            throw new IllegalArgumentException("Component does not support " + objectType);
+        if(!applicableTo.isInstance(object))
+            throw new IllegalArgumentException("Component does not support object of type " + object.getClass().getSimpleName());
 
         for (Class<? extends Component> requiredComponent : required) {
             context.ensure(object, requiredComponent);
@@ -57,7 +50,7 @@ public class ComponentBuilder<T extends Component> {
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException("This should never happen, report to developer.", e);
         }
-        component.initialize(object, context);
+        component.initialize(object, applicableTo, context);
         return component;
     }
 

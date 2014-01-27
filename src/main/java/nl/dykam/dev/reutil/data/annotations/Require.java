@@ -8,5 +8,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Require {
-    public Class<? extends Component>[] value();
+    public Class<? extends Component<?>>[] value();
 }

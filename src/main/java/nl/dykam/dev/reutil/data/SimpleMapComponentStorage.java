@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class SimpleMapComponentStorage<T extends Component> implements ComponentStorage<T> {
+public class SimpleMapComponentStorage<T> implements ComponentStorage<T> {
     private HashMap<Object, T> data;
 
     public SimpleMapComponentStorage() {
