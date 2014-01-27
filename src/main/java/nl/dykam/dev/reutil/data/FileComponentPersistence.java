@@ -16,6 +16,9 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.io.NotSerializableException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -68,6 +71,41 @@ public class FileComponentPersistence<T extends Component<?>> implements Compone
             ReUtilPlugin.getMessage().failure(Bukkit.getConsoleSender(), "Failed to save component of " + context.getPlugin().getName() + ": " + file.getAbsoluteFile());
         }
         ReUtilPlugin.getMessage().success(Bukkit.getConsoleSender(), "Succeeded to save component of " + context.getPlugin().getName() + ": " + file.getAbsoluteFile());
+    }
+
+    @Override
+    public boolean remove(Object object) {
+        File file = getFile(context, type, object);
+        File directory = file.getParentFile();
+        if(!file.delete()) {
+            return false;
+        }
+        removeEmptyDirectoryRecursively(directory);
+        return true;
+    }
+
+    private void removeEmptyDirectoryRecursively(File directory) {
+        DirectoryStream<Path> directoryStream = null;
+        try {
+            while(true) {
+                directoryStream = Files.newDirectoryStream(directory.toPath());
+                if(directoryStream.iterator().hasNext())
+                    break;
+                directory.delete();
+                directory = directory.getParentFile();
+                directoryStream.close();
+            }
+        } catch (IOException ignored) {
+        } finally {
+            if(directoryStream != null) {
+                try {
+                    directoryStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
     }
 
     protected static File getFile(ComponentManager context, Class<? extends Component> type, Object object) {

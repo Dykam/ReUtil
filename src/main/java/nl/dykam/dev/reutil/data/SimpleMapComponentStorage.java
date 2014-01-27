@@ -3,12 +3,13 @@ package nl.dykam.dev.reutil.data;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class SimpleMapComponentStorage<T> implements ComponentStorage<T> {
-    private HashMap<Object, T> data;
+    private WeakHashMap<Object, T> data;
 
     public SimpleMapComponentStorage() {
-        data = new HashMap<>();
+        data = new WeakHashMap<>();
     }
 
     @Override
@@ -19,6 +20,11 @@ public class SimpleMapComponentStorage<T> implements ComponentStorage<T> {
     @Override
     public T get(Object object) {
         return data.get(object);
+    }
+
+    @Override
+    public void remove(Object object) {
+        data.remove(object);
     }
 
     @Override

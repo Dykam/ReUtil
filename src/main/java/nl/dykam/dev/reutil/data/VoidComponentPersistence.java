@@ -18,4 +18,9 @@ public class VoidComponentPersistence<T extends Component<?>> implements Compone
     public void save(T component) {
 
     }
+
+    @Override
+    public boolean remove(Object object) {
+        return true;
+    }
 }

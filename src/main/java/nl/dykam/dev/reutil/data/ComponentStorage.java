@@ -8,6 +8,8 @@ public interface ComponentStorage<T> extends Iterable<Map.Entry<Object, T>> {
 
     T get(Object object);
 
+    void remove(Object object);
+
     @Override
     Iterator<Map.Entry<Object, T>> iterator();
 

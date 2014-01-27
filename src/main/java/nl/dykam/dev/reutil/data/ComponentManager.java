@@ -9,7 +9,10 @@ import nl.dykam.dev.reutil.events.Bind;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.IllegalClassException;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -24,14 +27,13 @@ public class ComponentManager {
     private final HandleMap handles = new HandleMap();
     private BukkitTask saveIntervalRunner;
     private ObjectInfo objectInfo;
+    private static ObjectInfo globalObjectInfo = new ObjectInfo();
 
     private ComponentManager(ComponentManager parent, Plugin plugin) {
         this.parent = parent;
         this.plugin = plugin;
         componentConfig = new ComponentConfig(plugin, new ConfigCallback());
         setTimeout(componentConfig.getInterval());
-        if(parent == null)
-            setObjectInfo(null); // Reset
     }
 
     public <O, T extends Component<O>> ComponentHandle<O, T> get(Class<T> type) {
@@ -90,11 +92,11 @@ public class ComponentManager {
     }
 
     public ObjectInfo getObjectInfo() {
-        return objectInfo != null ? objectInfo : parent != null ? parent.objectInfo : null;
+        return objectInfo != null ? objectInfo : parent != null ? parent.getObjectInfo() : globalObjectInfo;
     }
 
     public void setObjectInfo(ObjectInfo objectInfo) {
-        this.objectInfo = objectInfo != null ? objectInfo : parent != null ? null : new ObjectInfo();
+        this.objectInfo = objectInfo;
     }
 
     private static class Listeners implements Listener {
@@ -103,6 +105,19 @@ public class ComponentManager {
             for (ComponentHandle<?, ?> handle : get(plugin).handles.values()) {
                 if(ArrayUtils.contains(handle.getSaveMoments(), SaveMoment.PluginUnload))
                     handle.saveAll();
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @AutoEventHandler(priority = EventPriority.MONITOR)
+        private void onEntityDeath(EntityDeathEvent event, @Bind("entity") LivingEntity entity) {
+            if(!getGlobal().getObjectInfo().isPersistentObject(entity))
+                return;
+            for (ComponentManager componentManager : componentsCache.values()) {
+                for (ComponentHandle componentHandle : componentManager.handles.values()) {
+                    if(componentHandle.getObjectType().isInstance(entity))
+                        componentHandle.remove(entity);
+                }
             }
         }
     }

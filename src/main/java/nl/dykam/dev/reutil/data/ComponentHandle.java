@@ -3,9 +3,11 @@ package nl.dykam.dev.reutil.data;
 import nl.dykam.dev.reutil.data.annotations.Defaults;
 import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
+import nl.dykam.dev.reutil.utiils.TypeUtils;
 
 public class ComponentHandle<O, T extends Component<O>> {
     private final Class<T> type;
+    private final Class<O> objectType;
 
     private final Defaults defaults;
     private boolean persists;
@@ -22,9 +24,12 @@ public class ComponentHandle<O, T extends Component<O>> {
         this(type, context, null, null, null, null);
     }
 
+    @SuppressWarnings("unchecked")
     public ComponentHandle(Class<T> type, ComponentManager context, ComponentStorage<T> storage, ComponentPersistence<T> persistence, ComponentBuilder<T> builder, ObjectInfo objectInfo) {
         this.type = type;
         this.context = context;
+
+        this.objectType = (Class<O>) TypeUtils.getTypeArguments(Component.class, type).get(0);
 
         defaults = ComponentInfo.getDefaults(type);
         persists = ComponentInfo.isPersistant(type);
@@ -141,5 +146,14 @@ public class ComponentHandle<O, T extends Component<O>> {
 
     public void setObjectInfo(ObjectInfo objectInfo) {
         this.objectInfo = objectInfo;
+    }
+
+    public void remove(O object) {
+        storage.remove(object);
+        persistence.remove(object);
+    }
+
+    public Class<O> getObjectType() {
+        return objectType;
     }
 }
