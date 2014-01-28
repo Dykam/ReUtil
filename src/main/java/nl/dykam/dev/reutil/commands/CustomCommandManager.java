@@ -1,5 +1,6 @@
 package nl.dykam.dev.reutil.commands;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.annotation.Annotation;
@@ -9,16 +10,23 @@ import java.util.Map;
 
 import static nl.dykam.dev.reutil.utils.Reflect.getAnnotatedMethods;
 
-public class CustomCommandManager {
+public class CustomCommandManager implements ICustomCommandManager {
     Parsers parsers = new Parsers();
+    @Override
     public void registerCommands(CommandHandler handler, Plugin plugin) {
         for (Map.Entry<Method, AutoCommand> entry : getAnnotatedMethods(handler, AutoCommand.class).entrySet()) {
             tryRegisterCommand(handler, entry.getKey(), entry.getValue(), plugin);
         }
     }
 
+    @Override
     public <T> void registerArgumentType(Class<T> type, ArgumentParser<T> parser) {
         parsers.putSafe(type, parser);
+    }
+
+    @Override
+    public <T> void registerArgumentType(String name, Class<T> type, ArgumentParser<T> parser) {
+        throw new NotImplementedException();
     }
 
     private void tryRegisterCommand(CommandHandler handler, Method method, AutoCommand annotation, Plugin plugin) {

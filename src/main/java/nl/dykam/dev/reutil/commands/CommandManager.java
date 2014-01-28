@@ -12,6 +12,9 @@ public class CommandManager {
         global.registerArgumentType(Player.class, new StrictPlayerArgumentParser());
         global.registerArgumentType(int.class, new IntParser());
     }
+    private CommandManager() {
+
+    }
     public static void registerCommands(CommandHandler handler, Plugin plugin) {
         global.registerCommands(handler, plugin);
     }

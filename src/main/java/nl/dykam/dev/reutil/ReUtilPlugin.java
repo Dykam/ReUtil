@@ -1,21 +1,21 @@
 package nl.dykam.dev.reutil;
 
-import nl.dykam.dev.reutil.message.Message;
+import nl.dykam.dev.reutil.messenger.Messenger;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ReUtilPlugin extends JavaPlugin {
     private static ReUtilPlugin instance;
-    private static Message message;
+    private static Messenger message;
 
-    public static Message getMessage() {
+    public static Messenger getMessage() {
         return message;
     }
 
     @Override
     public void onEnable() {
         instance = this;
-        message = new Message(this, ChatColor.AQUA);
+        message = new Messenger(this, ChatColor.AQUA);
     }
 
     public static ReUtilPlugin instance() {

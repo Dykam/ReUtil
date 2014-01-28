@@ -1,4 +1,4 @@
 package nl.dykam.dev.reutil.commands;
 
-public class ParseContext {
+public class CommandTabContext {
 }

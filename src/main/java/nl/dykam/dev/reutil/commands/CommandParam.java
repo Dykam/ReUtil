@@ -16,8 +16,8 @@ abstract class CommandParam<T> {
         return parser;
     }
 
-    public abstract ParseResult<T> parse(String value, ParseContext context);
-    public abstract List<String> complete(String current);
+    public abstract ParseResult<T> parse(CommandExecuteContext context, String value);
+    public abstract List<String> complete(CommandTabContext context, String current);
 
     public abstract class Optional<T> extends CommandParam<T> {
 
@@ -26,8 +26,8 @@ abstract class CommandParam<T> {
         }
 
         @Override
-        public List<String> complete(String current) {
-            return getParser().complete(current);
+        public List<String> complete(CommandTabContext context, String current) {
+            return getParser().complete(context, current);
         }
     }
 
@@ -40,9 +40,9 @@ abstract class CommandParam<T> {
         }
 
         @Override
-        public ParseResult<T> parse(String value, ParseContext context) {
-            ParseResult<T> parse = getParser().parse(value);
-            return parse instanceof ParseResult.Success ? parse : ParseResult.success(defaultValue);
+        public ParseResult<T> parse(CommandExecuteContext context, String value) {
+            ParseResult<T> parse = getParser().parse(context, value);
+            return parse.isSuccess() ? parse : ParseResult.success(defaultValue);
         }
     }
 
@@ -52,14 +52,14 @@ abstract class CommandParam<T> {
         }
 
         @Override
-        public ParseResult<T> parse(String value, ParseContext context) {
-            ParseResult<T> parse = getParser().parse(value);
-            if (parse instanceof ParseResult.Success) {
+        public ParseResult<T> parse(CommandExecuteContext context, String value) {
+            ParseResult<T> parse = getParser().parse(context, value);
+            if (parse.isSuccess()) {
                 return parse;
             }
             return getContextValue(context);
         }
 
-        public abstract ParseResult<T> getContextValue(ParseContext context);
+        public abstract ParseResult<T> getContextValue(CommandExecuteContext context);
     }
 }
