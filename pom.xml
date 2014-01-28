@@ -16,7 +16,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.bukkit</groupId>
@@ -89,12 +88,12 @@
         <repository>
             <id>dykam-repo</id>
             <name>Internal Releases</name>
-            <url>http://box.dykam.nl:8081/nexus/content/repositories/releases/</url>
+            <url>http://nexus.dykam.nl/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>dykam-repo</id>
             <name>Internal Releases</name>
-            <url>http://box.dykam.nl:8081/nexus/content/repositories/snapshots/</url>
+            <url>http://nexus.dykam.nl/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 

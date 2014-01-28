@@ -10,9 +10,11 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.IllegalClassException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -117,6 +119,18 @@ public class ComponentManager {
                 for (ComponentHandle componentHandle : componentManager.handles.values()) {
                     if(componentHandle.getObjectType().isInstance(entity))
                         componentHandle.remove(entity);
+                }
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        @AutoEventHandler(priority = EventPriority.MONITOR)
+        private void onPlayerQuit(PlayerQuitEvent event, @Bind("player") Player player) {
+            for (ComponentManager componentManager : componentsCache.values()) {
+                for (ComponentHandle componentHandle : componentManager.handles.values()) {
+                    if(componentHandle.getObjectType().isInstance(player)) {
+                        componentHandle.save(player);
+                    }
                 }
             }
         }

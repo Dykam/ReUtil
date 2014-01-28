@@ -1,8 +1,11 @@
 package nl.dykam.dev.reutil.data;
 
 import nl.dykam.dev.reutil.ReUtilPlugin;
-import nl.dykam.dev.reutil.data.annotations.*;
-import nl.dykam.dev.reutil.utiils.TypeUtils;
+import nl.dykam.dev.reutil.data.annotations.Defaults;
+import nl.dykam.dev.reutil.data.annotations.Persistent;
+import nl.dykam.dev.reutil.data.annotations.Require;
+import nl.dykam.dev.reutil.data.annotations.SaveMoment;
+import nl.dykam.dev.reutil.utils.TypeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 

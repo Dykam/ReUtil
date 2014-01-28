@@ -1,11 +1,8 @@
 package nl.dykam.dev.reutil.data;
 
 import nl.dykam.dev.reutil.data.annotations.Defaults;
-import nl.dykam.dev.reutil.utiils.TypeUtils;
 
 import java.lang.ref.WeakReference;
-import java.util.HashSet;
-import java.util.Set;
 
 @Defaults
 public abstract class Component<T> {

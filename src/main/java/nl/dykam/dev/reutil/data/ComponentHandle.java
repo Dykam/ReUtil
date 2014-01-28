@@ -3,7 +3,7 @@ package nl.dykam.dev.reutil.data;
 import nl.dykam.dev.reutil.data.annotations.Defaults;
 import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
-import nl.dykam.dev.reutil.utiils.TypeUtils;
+import nl.dykam.dev.reutil.utils.TypeUtils;
 
 public class ComponentHandle<O, T extends Component<O>> {
     private final Class<T> type;

@@ -1,4 +1,4 @@
-package nl.dykam.dev.reutil.utiils;
+package nl.dykam.dev.reutil.utils;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
