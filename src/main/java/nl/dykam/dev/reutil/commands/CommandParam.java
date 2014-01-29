@@ -20,7 +20,6 @@ abstract class CommandParam<T> {
     public abstract List<String> complete(CommandTabContext context, String current);
 
     public abstract class Optional<T> extends CommandParam<T> {
-
         protected Optional(ArgumentParser<T> parser) {
             super(parser);
         }

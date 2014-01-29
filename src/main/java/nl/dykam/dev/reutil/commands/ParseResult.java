@@ -1,15 +1,20 @@
 package nl.dykam.dev.reutil.commands;
 
-import org.apache.commons.lang.NotImplementedException;
-import org.bukkit.entity.Entity;
-
 public class ParseResult<T> {
     private final T value;
     private final boolean success;
+    private final CommandResult commandResult;
 
-    public ParseResult(T value, boolean success) {
+    public ParseResult(T value) {
         this.value = value;
-        this.success = success;
+        this.success = true;
+        commandResult = CommandResult.silent();
+    }
+
+    public ParseResult(CommandResult commandResult) {
+        this.commandResult = commandResult;
+        this.success = false;
+        value = null;
     }
 
     public T getValue() {
@@ -21,12 +26,15 @@ public class ParseResult<T> {
     }
 
     public static <T> ParseResult<T> success(T value) {
-        return new ParseResult<>(value, true);
+        return new ParseResult<>(value);
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> ParseResult<T> failure() {
-        return new ParseResult<>(null, false);
+        return failure(null);
+    }
+
+    public static <T> ParseResult<T> failure(CommandResult commandResult) {
+        return new ParseResult<>(commandResult);
     }
 
     public static <T> ParseResult<T> notNull(T value) {
@@ -36,11 +44,11 @@ public class ParseResult<T> {
             return failure();
     }
 
-    public static ParseResult<Entity[]> failure(CommandResult commandResult) {
-        throw new NotImplementedException();
-    }
-
     public boolean isFailure() {
         return !success;
+    }
+
+    public CommandResult getCommandResult() {
+        return commandResult;
     }
 }

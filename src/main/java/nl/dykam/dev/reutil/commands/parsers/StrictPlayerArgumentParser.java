@@ -5,14 +5,17 @@ import nl.dykam.dev.reutil.commands.CommandExecuteContext;
 import nl.dykam.dev.reutil.commands.CommandTabContext;
 import nl.dykam.dev.reutil.commands.ParseResult;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class StrictPlayerArgumentParser implements ArgumentParser<Player> {
+public class StrictPlayerArgumentParser extends ArgumentParser<Player> {
+    public StrictPlayerArgumentParser() {
+        super("player", false);
+    }
+
     @Override
     public ParseResult<Player> parse(CommandExecuteContext context, String argument) {
         return ParseResult.notNull(Bukkit.getPlayerExact(argument));

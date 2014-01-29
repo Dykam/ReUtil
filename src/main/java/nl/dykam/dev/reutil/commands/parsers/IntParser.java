@@ -8,7 +8,11 @@ import nl.dykam.dev.reutil.commands.ParseResult;
 import java.util.Collections;
 import java.util.List;
 
-public class IntParser implements ArgumentParser<Integer> {
+public class IntParser extends ArgumentParser<Integer> {
+    public IntParser() {
+        super("number", false);
+    }
+
     @Override
     public ParseResult<Integer> parse(CommandExecuteContext context, String argument) {
         try {
