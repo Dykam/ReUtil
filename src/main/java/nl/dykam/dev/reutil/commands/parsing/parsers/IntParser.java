@@ -1,4 +1,4 @@
-package nl.dykam.dev.reutil.commands.parsers;
+package nl.dykam.dev.reutil.commands.parsing.parsers;
 
 import nl.dykam.dev.reutil.commands.ArgumentParser;
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;

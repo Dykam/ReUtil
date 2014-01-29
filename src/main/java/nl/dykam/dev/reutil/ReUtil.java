@@ -12,7 +12,7 @@ public class ReUtil {
     }
 
     public static void registerCommands(CommandHandler command, Plugin plugin) {
-        CommandManager.registerCommands(command, plugin);
+        CommandManager.getGlobal().registerCommands(command, plugin);
     }
 
     public static void register(Object carrier, Plugin plugin) {

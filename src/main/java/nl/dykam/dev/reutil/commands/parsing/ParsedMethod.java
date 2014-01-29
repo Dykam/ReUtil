@@ -1,10 +1,10 @@
-package nl.dykam.dev.reutil.commands;
+package nl.dykam.dev.reutil.commands.parsing;
 
 import com.google.common.base.Preconditions;
 
 import java.lang.invoke.MethodHandle;
 
-class ParsedMethod {
+public class ParsedMethod {
     private String name;
     private String[] aliases = {};
     private String permission;

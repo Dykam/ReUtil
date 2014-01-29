@@ -1,14 +1,16 @@
-package nl.dykam.dev.reutil.commands;
+package nl.dykam.dev.reutil.commands.parsing;
+
+import nl.dykam.dev.reutil.commands.ArgumentParser;
 
 import java.util.HashMap;
 import java.util.Map;
 
-class ArgumentParserRegistry {
+public class ArgumentParserRegistry {
     private ArgumentParserRegistry fallback;
     private Map<String, Map<Class<?>, Registration>> namedParsers;
     private Map<Class<?>, Registration> parsers;
 
-    ArgumentParserRegistry() {
+    public ArgumentParserRegistry() {
         namedParsers = new HashMap<>();
         parsers = new HashMap<>();
     }

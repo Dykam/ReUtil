@@ -1,5 +1,9 @@
-package nl.dykam.dev.reutil.commands;
+package nl.dykam.dev.reutil.commands.parsing;
 
+import nl.dykam.dev.reutil.commands.AutoCommand;
+import nl.dykam.dev.reutil.commands.CommandExecuteContext;
+import nl.dykam.dev.reutil.commands.CommandResult;
+import nl.dykam.dev.reutil.commands.ParseResult;
 import nl.dykam.dev.reutil.messenger.Messenger;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -7,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
 
-class ReUtilCommand extends Command implements CommandExecutor {
+public class ReUtilCommand extends Command implements CommandExecutor {
     private final ParsedMethod parsedMethod;
     private final AutoCommand annotation;
     private final Plugin plugin;

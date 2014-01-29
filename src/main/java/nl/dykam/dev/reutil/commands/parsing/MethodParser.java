@@ -1,5 +1,6 @@
-package nl.dykam.dev.reutil.commands;
+package nl.dykam.dev.reutil.commands.parsing;
 
+import nl.dykam.dev.reutil.commands.*;
 import org.bukkit.entity.Player;
 
 import java.lang.annotation.Annotation;
@@ -7,7 +8,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 
-class MethodParser {
+public class MethodParser {
     private final ArgumentParserRegistry registry;
 
     public MethodParser(ArgumentParserRegistry registry) {

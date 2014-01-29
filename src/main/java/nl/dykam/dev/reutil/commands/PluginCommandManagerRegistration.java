@@ -4,15 +4,15 @@ import nl.dykam.dev.reutil.data.Component;
 import org.bukkit.plugin.Plugin;
 
 class PluginCommandManagerRegistration extends Component<Plugin> {
-    private CustomCommandManager commandManager;
+    private CommandManager commandManager;
 
     @Override
     protected void onInitialize() {
-        commandManager = new CustomCommandManager(getObject());
+        commandManager = new CommandManager(getObject());
         commandManager.setFallback(CommandManager.getGlobal());
     }
 
-    public CustomCommandManager getCommandManager() {
+    public CommandManager getCommandManager() {
         return commandManager;
     }
 }
