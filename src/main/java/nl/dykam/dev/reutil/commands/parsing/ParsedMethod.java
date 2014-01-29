@@ -1,6 +1,7 @@
 package nl.dykam.dev.reutil.commands.parsing;
 
 import com.google.common.base.Preconditions;
+import nl.dykam.dev.reutil.commands.CommandHandler;
 
 import java.lang.invoke.MethodHandle;
 
@@ -13,10 +14,14 @@ public class ParsedMethod {
 
     private ParsedMethodParam[] params;
     private int senderIndex;
+    private CommandHandler handler;
     private MethodHandle method;
+    private boolean requiresContext;
 
-    public ParsedMethod(MethodHandle method, String name, String[] aliases, String permission, String permissionMessage, String description, int senderIndex, ParsedMethodParam[] params) {
+    public ParsedMethod(CommandHandler handler, MethodHandle method, String name, String[] aliases, String permission, String permissionMessage, String description, int senderIndex, ParsedMethodParam[] params, boolean requiresContext) {
+        this.handler = handler;
         this.method = method;
+        this.requiresContext = requiresContext;
         Preconditions.checkElementIndex(senderIndex, params.length, "Sender Parameter Index");
         this.name = name;
         this.aliases = aliases;
@@ -57,5 +62,13 @@ public class ParsedMethod {
 
     public MethodHandle getMethod() {
         return method;
+    }
+
+    public boolean isRequiresContext() {
+        return requiresContext;
+    }
+
+    public CommandHandler getHandler() {
+        return handler;
     }
 }

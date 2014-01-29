@@ -1,9 +1,10 @@
 package nl.dykam.dev.reutil.commands.parsing.parsers;
 
-import nl.dykam.dev.reutil.commands.ArgumentParser;
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;
+import nl.dykam.dev.reutil.commands.CommandResult;
 import nl.dykam.dev.reutil.commands.CommandTabContext;
 import nl.dykam.dev.reutil.commands.ParseResult;
+import nl.dykam.dev.reutil.commands.parsing.ArgumentParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -18,7 +19,15 @@ public class StrictPlayerArgumentParser extends ArgumentParser<Player> {
 
     @Override
     public ParseResult<Player> parse(CommandExecuteContext context, String argument) {
-        return ParseResult.notNull(Bukkit.getPlayerExact(argument));
+        Player player = Bukkit.getPlayerExact(argument);
+        if(player != null && context.getSender() instanceof Player) {
+            Player sender = (Player) context.getSender();
+            if(!sender.canSee(player))
+                player = null;
+        }
+        if(player == null)
+            return new ParseResult<>(CommandResult.failure("Player not found!"));
+        return ParseResult.success(player);
     }
 
     @Override

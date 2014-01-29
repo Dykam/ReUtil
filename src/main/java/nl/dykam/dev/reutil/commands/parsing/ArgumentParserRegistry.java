@@ -1,6 +1,8 @@
 package nl.dykam.dev.reutil.commands.parsing;
 
-import nl.dykam.dev.reutil.commands.ArgumentParser;
+import nl.dykam.dev.reutil.ReUtilPlugin;
+import org.apache.commons.lang.StringUtils;
+import org.bukkit.Bukkit;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ public class ArgumentParserRegistry {
     }
 
     public ArgumentParser<?> getParser(Class<?> parameterType, String parserName) {
+        ReUtilPlugin.getMessage().message(Bukkit.getConsoleSender(), "Requesting " + parameterType.getName());
         // Precedence: Named, Named in fallback, Unnamed, Unnamed in fallback
         Registration parser = null;
         parser = getNamedParser(parameterType, parserName);
@@ -25,7 +28,8 @@ public class ArgumentParserRegistry {
             parser = getUnnamedParser(parameterType);
         if(parser == null && fallback != null)
             parser = fallback.getUnnamedParser(parameterType);
-        return parser.getParser();
+        ReUtilPlugin.getMessage().message(Bukkit.getConsoleSender(), (parser == null ? "Failed:" : "Succeeded: ") + parameterType.getName());
+        return parser == null ? null : parser.getParser();
     }
 
     private Registration getUnnamedParser(Class<?> parameterType) {
@@ -33,8 +37,15 @@ public class ArgumentParserRegistry {
     }
 
     private Registration getNamedParser(Class<?> parameterType, String parserName) {
-        Map<Class<?>, Registration> parsers = namedParsers.get(parserName);
+        Map<Class<?>, Registration> parsers = getNamedParsers(parserName);
         return parsers != null ? parsers.get(parameterType) : null;
+    }
+
+    private Map<Class<?>, Registration> getNamedParsers(String parserName) {
+        if(!namedParsers.containsKey(parserName)) {
+            namedParsers.put(parserName, new HashMap<Class<?>, Registration>());
+        }
+        return namedParsers.get(parserName);
     }
 
     public <T> void register(Class<T> type, ArgumentParser<T> parser) {
@@ -43,23 +54,45 @@ public class ArgumentParserRegistry {
 
     public <T> void register(String name, Class<T> type, ArgumentParser<T> parser) {
         register(type, parser, 0, parsers);
-        Map<Class<?>, Registration> namedParsers = this.namedParsers.get(name);
-        if(namedParsers != null)
-            register(type, parser, 0, namedParsers);
+        Map<Class<?>, Registration> namedParsers = getNamedParsers(name);
+        register(type, parser, 0, namedParsers);
+    }
+    @SuppressWarnings("unchecked")
+    private <T> void register(Class<? super T> type, ArgumentParser<T> parser, int depth, Map<Class<?>, Registration> parsers) {
+        int arrayDepth = 0;
+        while (type.isArray()) {
+            arrayDepth++;
+            type = (Class<? super T>) type.getComponentType();
+        }
+        register(type, parser, depth, parsers, arrayDepth);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> void register(Class<? super T> type, ArgumentParser<T> parser, int depth, Map<Class<?>, Registration> parsers) {
-        Registration currentParser = parsers.get(type);
-        if(currentParser.depth <= depth)
+    private <T> void register(Class<?> type, ArgumentParser<T> parser, int depth, Map<Class<?>, Registration> parsers, int arrayDepth) {
+        Class<?> actualType = reconstructArray(type, arrayDepth);
+        Registration currentParser = parsers.get(actualType);
+        if(currentParser != null && currentParser.depth <= depth)
             return;
-        parsers.put(type, new Registration(parser, depth));
-        Class<? super T> superclass = type.getSuperclass();
+        parsers.put(actualType, new Registration(parser, depth));
+        ReUtilPlugin.getMessage().success(Bukkit.getConsoleSender(), "Registered (" + depth + ")" + actualType.getName());
+        Class<?> superclass = type.getSuperclass();
         if(superclass != null)
-            register(superclass, parser, depth + 1, parsers);
+            register(superclass, parser, depth + 1, parsers, arrayDepth);
         for (Class<?> interfaze : type.getInterfaces()) {
-            register((Class<? super T>) interfaze, parser, depth + 1, parsers);
+            register(interfaze, parser, depth + 1, parsers, arrayDepth);
         }
+    }
+
+    private Class<?> reconstructArray(Class<?> type, int arrayDepth) {
+        if(arrayDepth == 0)
+            return type;
+        try {
+            return Class.forName(StringUtils.repeat("[", arrayDepth) + "L" + type.getName() + ";");
+        } catch (ClassNotFoundException e) {
+            ReUtilPlugin.instance().getLogger().severe("This should never happen, contact the developer");
+            e.printStackTrace();
+        }
+        return type;
     }
 
     public ArgumentParserRegistry getFallback() {

@@ -4,6 +4,9 @@ import nl.dykam.dev.reutil.data.Component;
 import org.bukkit.plugin.Plugin;
 
 class PluginCommandManagerRegistration extends Component<Plugin> {
+    public PluginCommandManagerRegistration() {
+    }
+
     private CommandManager commandManager;
 
     @Override

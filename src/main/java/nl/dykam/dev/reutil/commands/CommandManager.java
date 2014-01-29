@@ -1,10 +1,7 @@
 package nl.dykam.dev.reutil.commands;
 
 import nl.dykam.dev.reutil.ReUtilPlugin;
-import nl.dykam.dev.reutil.commands.parsing.ArgumentParserRegistry;
-import nl.dykam.dev.reutil.commands.parsing.MethodParser;
-import nl.dykam.dev.reutil.commands.parsing.ParsedMethod;
-import nl.dykam.dev.reutil.commands.parsing.ReUtilCommand;
+import nl.dykam.dev.reutil.commands.parsing.*;
 import nl.dykam.dev.reutil.commands.parsing.parsers.IntParser;
 import nl.dykam.dev.reutil.commands.parsing.parsers.StrictPlayerArgumentParser;
 import nl.dykam.dev.reutil.data.ComponentHandle;
@@ -46,11 +43,24 @@ public class CommandManager {
     }
 
     private void tryRegisterCommand(CommandHandler handler, Method method, AutoCommand annotation, Plugin plugin) {
-        ParsedMethod parsed = parser.parse(method);
-        ReUtilCommand command = new ReUtilCommand(parsed, annotation, plugin);
-        PluginCommand pluginCommand = Bukkit.getPluginCommand(command.getName());
-        if(pluginCommand.getPlugin().equals(plugin))
+        ReUtilCommand command;
+        PluginCommand pluginCommand;
+        try {
+            ParsedMethod parsed = parser.parse(handler, method);
+            command = new ReUtilCommand(parsed, annotation, plugin);
+            pluginCommand = Bukkit.getPluginCommand(command.getName());
+        } catch (Throwable throwable) {
+            ReUtilPlugin.instance().getLogger().severe("A command failed to register: ");
+            throwable.printStackTrace();
+            return;
+        }
+        if(pluginCommand != null && pluginCommand.getPlugin().equals(plugin))
             command.override(pluginCommand);
+        else {
+            ReUtilPlugin.instance().getLogger().severe("A command failed to register because no the command is not defined in plugin.yml: ");
+            ReUtilPlugin.instance().getLogger().severe("\t/" + command.getName() + " in " + plugin.getName());
+        }
+
     }
 
     public CommandManager getFallback() {

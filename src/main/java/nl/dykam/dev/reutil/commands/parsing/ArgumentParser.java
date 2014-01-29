@@ -1,4 +1,8 @@
-package nl.dykam.dev.reutil.commands;
+package nl.dykam.dev.reutil.commands.parsing;
+
+import nl.dykam.dev.reutil.commands.CommandExecuteContext;
+import nl.dykam.dev.reutil.commands.CommandTabContext;
+import nl.dykam.dev.reutil.commands.ParseResult;
 
 import java.util.List;
 

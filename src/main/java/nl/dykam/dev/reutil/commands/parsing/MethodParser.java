@@ -15,7 +15,7 @@ public class MethodParser {
         this.registry = registry;
     }
 
-    public ParsedMethod parse(Method method) {
+    public ParsedMethod parse(CommandHandler handler, Method method) {
         AutoCommand annotation = method.getAnnotation(AutoCommand.class);
         String name = annotation.name().equals("") ? method.getName() : annotation.name();
         boolean defaultCanSee = method.isAnnotationPresent(CanSee.class) && method.getAnnotation(CanSee.class).value();
@@ -28,16 +28,18 @@ public class MethodParser {
 
         int senderIndex = -1;
         boolean parsedAnOptional = false; // Used to check if sender is the first optional parameter.
-        ParsedMethodParam[] methodParams = new ParsedMethodParam[parameterTypes.length];
-        for(int i = 0; i < parameterTypes.length; i++) {
+        boolean requiresContext = parameterTypes[0].equals(CommandExecuteContext.class);
+        int offset = requiresContext ? 1 : 0;
+        ParsedMethodParam[] methodParams = new ParsedMethodParam[parameterTypes.length - offset];
+        for(int i = offset; i < parameterTypes.length; i++) {
             Class<?> parameterType = parameterTypes[i];
             Annotation[] parameterAnnotation = parameterAnnotations[i];
             ParsedMethodParam methodParam = parseParam(parameterType, parameterAnnotation, defaultCanSee);
-            methodParams[i] = methodParam;
+            methodParams[i - offset] = methodParam;
             if(methodParam.isSender() && senderIndex < 0) {
                 if(parsedAnOptional)
                     throw new IllegalStateException("@Sender must be the first optional argument");
-                senderIndex = i;
+                senderIndex = i - offset;
             }
             parsedAnOptional |= methodParam.isOptional();
         }
@@ -52,7 +54,7 @@ public class MethodParser {
             throw new IllegalStateException("Failed to extract handle from method", e);
         }
 
-        return new ParsedMethod(handle, name, annotation.aliases(), annotation.permission(), annotation.permissionMessage(), annotation.description(), senderIndex, methodParams);
+        return new ParsedMethod(handler, handle, name, annotation.aliases(), annotation.permission(), annotation.permissionMessage(), annotation.description(), senderIndex, methodParams, requiresContext);
     }
 
     /**
@@ -92,8 +94,9 @@ public class MethodParser {
         if(parser == null)
             throw new IllegalStateException("No ArgumentParser found for " + parameterType.getSimpleName());
 
-        if(name == null)
-            name = parser.getDefaultName();
+        if(name == null) {
+            name = sender ? "target" : parser.getDefaultName();
+        }
 
         return new ParsedMethodParam(name, parser, optional, sender, canSee);
     }

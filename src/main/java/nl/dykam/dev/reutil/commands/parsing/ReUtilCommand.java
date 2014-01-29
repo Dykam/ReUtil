@@ -46,9 +46,14 @@ public class ReUtilCommand extends Command implements CommandExecutor {
         builder.setCommand(this);
         builder.setDescription(annotation);
         builder.setSender(commandSender);
-        int argumentIndex = 0, resultIndex = 0;
         ParsedMethodParam[] params = parsedMethod.getParams();
-        Object[] parsedParams = new Object[params.length];
+        int offset = parsedMethod.isRequiresContext() ? 2 : 1;
+        Object[] parsedParams = new Object[params.length + offset];
+        parsedParams[0] = parsedMethod.getHandler();
+        if(parsedMethod.isRequiresContext()) {
+            parsedParams[1] = context;
+        }
+        int argumentIndex = 0, resultIndex = offset;
         for (int i = 0; i < params.length; i++) {
             ParsedMethodParam methodParam = params[i];
             if (strings.length <= argumentIndex) {
@@ -57,28 +62,30 @@ public class ReUtilCommand extends Command implements CommandExecutor {
             }
             ParseResult<?> parsedParam = methodParam.getParser().parse(context, strings[argumentIndex]);
             if (parsedParam.isFailure()) {
-                if (methodParam.isOptional()) {
-                    continue;
-                } else if(methodParam.isSender()) {
-                    if(!(commandSender instanceof Player)) {
-                        Messenger.get(plugin).failure(commandSender, "Execute in-game or provide a target player");
+                if (!methodParam.isOptional()) {
+                    if(methodParam.isSender()) {
+                        if(!(commandSender instanceof Player)) {
+                            Messenger.get(plugin).failure(commandSender, methodParam.getUsingName() + " " + strings[argumentIndex] + " not found. Execute in-game or provide a valid target player");
+                            return false;
+                        }
+                        parsedParams[resultIndex] = commandSender;
+                        builder.setTarget((Player)commandSender);
+                        resultIndex++;
+                    } else if (parsedParam.getCommandResult() != null) {
+                        parsedParam.getCommandResult().send(commandSender, plugin);
+                        return false;
+                    } else {
+                        Messenger.get(plugin).failure(commandSender, methodParam.getUsingName() + " at position " + argumentIndex + "not recognized");
                         return false;
                     }
-                    parsedParams[i] = commandSender;
-                    builder.setTarget((Player)commandSender);
-                    resultIndex++;
-                } else if (parsedParam.getCommandResult() != null) {
-                    parsedParam.getCommandResult().send(commandSender, plugin);
-                } else {
-                    Messenger.get(plugin).failure(commandSender, methodParam.getUsingName() + " at position " + argumentIndex + "not recognized");
-                    return false;
                 }
+            } else {
+                if (methodParam.isSender())
+                    builder.setTarget((Player) parsedParam.getValue());
+                parsedParams[resultIndex] = parsedParam.getValue();
+                resultIndex++;
+                argumentIndex++;
             }
-            if (methodParam.isSender())
-                builder.setTarget((Player) parsedParam.getValue());
-            parsedParams[i] = parsedParam.getValue();
-            resultIndex++;
-            argumentIndex++;
         }
 
         try {
@@ -104,6 +111,7 @@ public class ReUtilCommand extends Command implements CommandExecutor {
         pluginCommand.setAliases(getAliases());
         pluginCommand.setPermission(getPermission());
         pluginCommand.setPermissionMessage(getPermissionMessage());
+        pluginCommand.setUsage(getUsage());
         pluginCommand.setDescription(getDescription());
     }
 
