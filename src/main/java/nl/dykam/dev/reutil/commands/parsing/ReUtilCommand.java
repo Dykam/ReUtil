@@ -2,19 +2,18 @@ package nl.dykam.dev.reutil.commands.parsing;
 
 import nl.dykam.dev.reutil.commands.AutoCommand;
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;
-import nl.dykam.dev.reutil.commands.CommandResult;
-import nl.dykam.dev.reutil.commands.ParseResult;
 import nl.dykam.dev.reutil.messenger.Messenger;
 import org.bukkit.command.*;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ReUtilCommand extends Command implements CommandExecutor {
     private final ParsedMethod parsedMethod;
     private final AutoCommand annotation;
     private final Plugin plugin;
+    private ArgumentParserList argumentParserList;
 
     public ReUtilCommand(ParsedMethod parsedMethod, AutoCommand annotation, Plugin plugin) {
         super(parsedMethod.getName(), parsedMethod.getDescription(), generateUsage(parsedMethod), Arrays.asList(parsedMethod.getAliases()));
@@ -25,6 +24,7 @@ public class ReUtilCommand extends Command implements CommandExecutor {
             setPermissionMessage(parsedMethod.getPermissionMessage());
         if(!"".equals(parsedMethod.getPermission()))
             setPermission(parsedMethod.getPermission());
+        argumentParserList = ArgumentParserList.fromParsedMethod(parsedMethod);
     }
 
     private static String generateUsage(ParsedMethod parsed) {
@@ -39,65 +39,29 @@ public class ReUtilCommand extends Command implements CommandExecutor {
 
     @Override
     public boolean execute(CommandSender commandSender, String s, String[] strings) {
-        CommandExecuteContext.Builder builder = new CommandExecuteContext.Builder();
-        CommandExecuteContext context = builder.instance();
-        builder.setArguments(strings);
-        builder.setLabel(s);
-        builder.setCommand(this);
-        builder.setDescription(annotation);
-        builder.setSender(commandSender);
-        ParsedMethodParam[] params = parsedMethod.getParams();
         int offset = parsedMethod.isRequiresContext() ? 2 : 1;
-        Object[] parsedParams = new Object[params.length + offset];
-        parsedParams[0] = parsedMethod.getHandler();
-        if(parsedMethod.isRequiresContext()) {
-            parsedParams[1] = context;
+        List<Object> parsedParams = Arrays.asList(new Object[parsedMethod.getParams().length + offset]);
+        CommandExecuteContext context = new CommandExecuteContext(annotation, this, strings, s, commandSender, parsedParams.subList(offset, parsedParams.size()));
+
+        parsedParams.set(0, parsedMethod.getHandler());
+        if (parsedMethod.isRequiresContext()) {
+            parsedParams.set(1, context);
         }
-        int argumentIndex = 0, resultIndex = offset;
-        for (int i = 0; i < params.length; i++) {
-            ParsedMethodParam methodParam = params[i];
-            if (strings.length <= argumentIndex) {
-                Messenger.get(plugin).failure(commandSender, "Not enough arguments");
-                return false;
-            }
-            ParseResult<?> parsedParam = methodParam.getParser().parse(context, strings[argumentIndex]);
-            if (parsedParam.isFailure()) {
-                if (!methodParam.isOptional()) {
-                    if(methodParam.isSender()) {
-                        if(!(commandSender instanceof Player)) {
-                            Messenger.get(plugin).failure(commandSender, methodParam.getUsingName() + " " + strings[argumentIndex] + " not found. Execute in-game or provide a valid target player");
-                            return false;
-                        }
-                        parsedParams[resultIndex] = commandSender;
-                        builder.setTarget((Player)commandSender);
-                        resultIndex++;
-                    } else if (parsedParam.getCommandResult() != null) {
-                        parsedParam.getCommandResult().send(commandSender, plugin);
-                        return false;
-                    } else {
-                        Messenger.get(plugin).failure(commandSender, methodParam.getUsingName() + " at position " + argumentIndex + "not recognized");
-                        return false;
-                    }
-                }
-            } else {
-                if (methodParam.isSender())
-                    builder.setTarget((Player) parsedParam.getValue());
-                parsedParams[resultIndex] = parsedParam.getValue();
-                resultIndex++;
-                argumentIndex++;
-            }
+
+        ArgumentParserList list = getList();
+        ExecuteResult parseResult = list.parse(context);
+        if(parseResult.isFailure()) {
+            String message = parseResult.getMessage();
+            if(message == null) message = "Failed to execute /" + s + " because one or more arguments where invalid";
+            Messenger.get(plugin).failure(commandSender, message);
+            return false;
         }
 
         try {
             Object result = parsedMethod.getMethod().invokeWithArguments(parsedParams);
-            if(result instanceof Boolean)
-                return (boolean)result;
-            if(result instanceof CommandResult) {
-                CommandResult commandResult = (CommandResult) result;
-                commandResult.send(commandSender, plugin);
-                return true;
-            }
-            if(result != null) {
+            if (result instanceof Boolean)
+                return (boolean) result;
+            if (result != null) {
                 throw new IllegalStateException("This should never happen. Contact the developer");
             }
             return true;
@@ -118,5 +82,9 @@ public class ReUtilCommand extends Command implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         return execute(commandSender, s, strings);
+    }
+
+    public ArgumentParserList getList() {
+        return argumentParserList;
     }
 }

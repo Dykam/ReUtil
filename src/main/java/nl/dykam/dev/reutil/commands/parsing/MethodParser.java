@@ -22,9 +22,8 @@ public class MethodParser {
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Class<?>[] parameterTypes = method.getParameterTypes();
 
-        if (!void.class.equals(method.getReturnType()) && !Boolean.class.equals(method.getReturnType()) && !boolean.class.equals(method.getReturnType()) && !CommandResult.class.isAssignableFrom(method.getReturnType())) {
+        if (isValidReturnType(method.getReturnType()))
             throw new IllegalStateException("An AutoCommand must return either void, a boolean or a CommandResult");
-        }
 
         int senderIndex = -1;
         boolean parsedAnOptional = false; // Used to check if sender is the first optional parameter.
@@ -57,6 +56,10 @@ public class MethodParser {
         return new ParsedMethod(handler, handle, name, annotation.aliases(), annotation.permission(), annotation.permissionMessage(), annotation.description(), senderIndex, methodParams, requiresContext);
     }
 
+    private boolean isValidReturnType(Class<?> returnType) {
+        return !void.class.equals(returnType) && !Boolean.class.equals(returnType) && !boolean.class.equals(returnType);
+    }
+
     /**
      * Parsers a parameter. It uses a bunch of fallbacks internally to allow easy usage
      * @param parameterType The type of the parameter
@@ -70,21 +73,13 @@ public class MethodParser {
         boolean optional = false;
         boolean sender = false;
         for (Annotation annotation : parameterAnnotation) {
-            if(annotation instanceof CanSee) {
-                if(!Player.class.isAssignableFrom(parameterType))
-                    throw new IllegalStateException("CanSee can only be applied to parameters of type Player");
-                canSee = ((CanSee) annotation).value();
-            } else if(annotation instanceof Name) {
-                name = ((Name) annotation).value();
-            } else if(annotation instanceof Parse) {
-                parserName = ((Parse) annotation).value();
-            } else if(annotation instanceof Sender) {
-                if(!Player.class.isAssignableFrom(parameterType))
-                    throw new IllegalStateException("Sender can only be applied to parameters of type Player");
-                sender = true;
-            } else if(annotation instanceof Optional) {
-                optional = true;
-            }
+            if ((annotation instanceof CanSee || annotation instanceof Sender) && !Player.class.isAssignableFrom(parameterType))
+                throw new IllegalStateException("CanSee can only be applied to parameters of type Player");
+            else if (annotation instanceof CanSee) canSee = true;
+            else if (annotation instanceof Sender) sender = true;
+            else if (annotation instanceof Optional) optional = true;
+            else if (annotation instanceof Name) name = ((Name) annotation).value();
+            else if (annotation instanceof Parse) parserName = ((Parse) annotation).value();
         }
 
         if(parserName == null)

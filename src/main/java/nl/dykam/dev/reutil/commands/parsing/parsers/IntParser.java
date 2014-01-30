@@ -2,8 +2,8 @@ package nl.dykam.dev.reutil.commands.parsing.parsers;
 
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;
 import nl.dykam.dev.reutil.commands.CommandTabContext;
-import nl.dykam.dev.reutil.commands.ParseResult;
 import nl.dykam.dev.reutil.commands.parsing.ArgumentParser;
+import nl.dykam.dev.reutil.commands.parsing.ParseResult;
 
 import java.util.Collections;
 import java.util.List;

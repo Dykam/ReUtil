@@ -1,6 +1,7 @@
 package nl.dykam.dev.reutil.commands;
 
 import nl.dykam.dev.reutil.commands.parsing.ArgumentParser;
+import nl.dykam.dev.reutil.commands.parsing.ParseResult;
 
 import java.util.List;
 
