@@ -73,7 +73,9 @@ public class ComponentHandle<O, T extends Component<O>> {
     public void save(O object) {
         if(shouldSkipSave(object))
             return;
-        persistence.save(storage.get(object));
+        T component = storage.get(object);
+        if(component != null)
+            persistence.save(component);
     }
 
     private boolean shouldSkipSave(O object) {
