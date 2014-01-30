@@ -7,14 +7,14 @@ public class ArgumentParserList {
     private Node first;
 
     public ExecuteResult parse(CommandExecuteContext context) {
-        return first.execute(context, 0);
+        return first.proceed(context, 0);
     }
 
     public static ArgumentParserList fromParsedMethod(ParsedMethod parsedMethod) {
         ArgumentParserList list = new ArgumentParserList();
         ParsedMethodParam[] params = parsedMethod.getParams();
-        Node previous = list.first = new Node(params[0], 0);
-        for (int i = 1; i < params.length; i++) {
+        Node previous = list.first = new Node(null, -1);
+        for (int i = 0; i < params.length; i++) {
             ParsedMethodParam parsedMethodParam = params[i];
             Node current = new Node(parsedMethodParam, i);
             previous.next = current;
@@ -61,7 +61,7 @@ public class ArgumentParserList {
                 Object value = parseResult.getValue();
                 context.getResult().set(index, value);
                 if(param.isSender() & value instanceof Player)
-                    context.setTarget((Player) value);;
+                    context.setTarget((Player) value);
             }
             return parseResult;
         }
