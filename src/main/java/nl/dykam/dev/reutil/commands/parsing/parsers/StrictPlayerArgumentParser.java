@@ -25,7 +25,7 @@ public class StrictPlayerArgumentParser extends ArgumentParser<Player> {
                 player = null;
         }
         if(player == null)
-            return ParseResult.failure("Player not found!");
+            return ParseResult.failure("Player " + argument + " not found!");
         return ParseResult.success(player);
     }
 
