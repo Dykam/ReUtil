@@ -5,13 +5,15 @@ import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
 import nl.dykam.dev.reutil.utils.TypeUtils;
 
+import java.util.Set;
+
 public class ComponentHandle<O, T extends Component<O>> {
     private final Class<T> type;
     private final Class<O> objectType;
 
     private final Defaults defaults;
     private boolean persists;
-    private SaveMoment[] saveMoments;
+    private Set<SaveMoment> saveMoments;
 
     private ComponentManager context;
     private ComponentBuilder<T> builder;
@@ -101,7 +103,7 @@ public class ComponentHandle<O, T extends Component<O>> {
         return persists;
     }
 
-    public SaveMoment[] getSaveMoments() {
+    public Set<SaveMoment> getSaveMoments() {
         return saveMoments;
     }
 

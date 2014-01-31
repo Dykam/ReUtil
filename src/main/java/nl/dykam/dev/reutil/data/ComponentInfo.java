@@ -10,11 +10,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 class ComponentInfo {
     @SuppressWarnings("unchecked")
     public static final Class<? extends Component>[] NO_CLASSES = (Class<? extends Component>[]) Array.newInstance(Class.class, 0);
-    private static final SaveMoment[] DEFAULT_SAVE_MOMENTS = {};
+    private static final Set<SaveMoment> DEFAULT_SAVE_MOMENTS = Collections.emptySet();
 
     public static <T extends Component<?>> Defaults getDefaults(Class<T> type) {
         return type.getAnnotation(Defaults.class);
@@ -34,15 +38,14 @@ class ComponentInfo {
         return annotation == null ? NO_CLASSES : annotation.value();
     }
 
-    public static <T extends Component<?>> SaveMoment[] getSaveMoments(Class<T> type) {
+    public static <T extends Component<?>> Set<SaveMoment> getSaveMoments(Class<T> type) {
         Persistent annotation = type.getAnnotation(Persistent.class);
-        SaveMoment[] result = DEFAULT_SAVE_MOMENTS;
         if(annotation == null) {
             return DEFAULT_SAVE_MOMENTS;
         } else if(!ConfigurationSerializable.class.isAssignableFrom(type)) {
             ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "ConfigurationSerializable not implemented by @Persistent " + type.getName());
         }
-        return annotation.value();
+        return Collections.unmodifiableSet(new HashSet<>(Arrays.asList(annotation.value())));
     }
 
     public static Defaults getDefaults(Component component) {

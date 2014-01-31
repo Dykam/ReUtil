@@ -4,5 +4,6 @@ public enum SaveMoment {
     Interval,
     WorldSave,
     PluginUnload,
+    PlayerLogoff,
     ServerStop
 }

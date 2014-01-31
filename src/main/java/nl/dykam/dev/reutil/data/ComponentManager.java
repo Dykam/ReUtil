@@ -6,7 +6,6 @@ import nl.dykam.dev.reutil.data.annotations.Defaults;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
 import nl.dykam.dev.reutil.events.AutoEventHandler;
 import nl.dykam.dev.reutil.events.Bind;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.IllegalClassException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -105,15 +104,22 @@ public class ComponentManager {
         @AutoEventHandler
         private void onPluginDisable(PluginDisableEvent event, @Bind("plugin") Plugin plugin) {
             for (ComponentHandle<?, ?> handle : get(plugin).handles.values()) {
-                if(ArrayUtils.contains(handle.getSaveMoments(), SaveMoment.PluginUnload))
+                if(handle.getSaveMoments().contains(SaveMoment.PluginUnload))
                     handle.saveAll();
             }
         }
 
+        /**
+         * Remove components and their persisted data when they disappear.
+         * It only considers LivingEntities which don't despawn.
+         * The rest isn't saved to the filesystem by default anyway.
+         */
         @SuppressWarnings("unchecked")
         @AutoEventHandler(priority = EventPriority.MONITOR)
         private void onEntityDeath(EntityDeathEvent event, @Bind("entity") LivingEntity entity) {
             if(!getGlobal().getObjectInfo().isPersistentObject(entity))
+                return;
+            if(entity instanceof Player)
                 return;
             for (ComponentManager componentManager : componentsCache.values()) {
                 for (ComponentHandle componentHandle : componentManager.handles.values()) {
@@ -128,9 +134,11 @@ public class ComponentManager {
         private void onPlayerQuit(PlayerQuitEvent event, @Bind("player") Player player) {
             for (ComponentManager componentManager : componentsCache.values()) {
                 for (ComponentHandle componentHandle : componentManager.handles.values()) {
-                    if(componentHandle.getObjectType().isInstance(player)) {
-                        componentHandle.save(player);
-                    }
+                    if(!componentHandle.getSaveMoments().contains(SaveMoment.PlayerLogoff))
+                        continue;
+                    if(!componentHandle.getObjectType().isInstance(player))
+                        continue;
+                    componentHandle.save(player);
                 }
             }
         }
@@ -153,7 +161,7 @@ public class ComponentManager {
             @Override
             public void run() {
                 for (ComponentHandle<?, ?> handle : handles.values()) {
-                    if(ArrayUtils.contains(handle.getSaveMoments(), SaveMoment.Interval))
+                    if(handle.getSaveMoments().contains(SaveMoment.Interval))
                         handle.saveAll();
                 }
             }
