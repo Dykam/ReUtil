@@ -5,9 +5,9 @@ REusable UTILity library - Advanced utilities for Bukkit
 
 This toolset skips past the usual things, and adds features making your code cleaner and more to the point. Currently the major modules are:
 
-- Components
-- Commands
-- Events
+- [Components](#components)
+- [Commands](#commands)
+- [Events](#events)
 
 Commands and Events provide a layer on top of Bukkit's own Command functionality, taking away some of the error and type handling. Components add functionality that is greatly underappreciated: attaching data to just about everything (in a safe way, too). And it even gets saved! Here are some examples of each submodule
 
