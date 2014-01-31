@@ -18,7 +18,7 @@ Suppose you want to add a simple `/tp` command. Important is that the `<from>` h
     aliases = {"teleport"},
     description = "Teleports <from> to <to>"
 )
-public void onCommand(CommandSender sender, Command command, String label, String[] args) {
+public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if(command.getName().equals("tp")) {
             Player from, to;
             if(args.length == 0) {
@@ -76,7 +76,7 @@ The 'usage' is generated on the fly, and all arguments are dynamically parsed ba
 ```java
 @AutoEventHandler
 private void onPlayerHitPlayer(EntityDamageByEntityEvent event, @Bind("entity") Player damaged, @Bind("damager") Player damager) {
-    damaged.sendMessage(damager.getName() + " damaged out!");
+    damaged.sendMessage(damager.getName() + " damaged you!");
 }
 ```
 
