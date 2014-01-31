@@ -3,7 +3,7 @@ ReUtil
 
 REusable UTILity library - Advanced utilities for Bukkit
 
-This toolsit skips past the usual things, and adds features making your code cleaner and more to the point. Currently the mayor modules are
+This toolsit skips past the usual things, and adds features making your code cleaner and more to the point. Currently the major modules are
 
 - Components
 - Commands
@@ -57,7 +57,7 @@ public void onCommand(CommandSender sender, Command command, String label, Strin
 }
 ```
 
-That is a *lot* of code, just to handle all the wrong input. And that doesn't even include what you need in the `plugin.yml`. Here is the equivalent using ReUtil's @AutoCommand:
+That is a *lot* of code, just to handle all the wrong input. And that doesn't even include what you need in the `plugin.yml`. Here is the equivalent using ReUtil's `@AutoCommand`:
 ```java
 @CanSee
 @AutoCommand(
