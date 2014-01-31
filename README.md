@@ -12,7 +12,7 @@ This toolsit skips past the usual things, and adds features making your code cle
 Commands and Events provider a layer on top of Bukkit's own Command functionality, taking away some of the error and type handling. Components add that thing you never realized you really needed: Attaching data to just about everything. In a safe way. And it even gets saved! Here are some examples of each submodule
 
 ## Commands
-Suppose you want to add a simple /tp command. Important is that the `<from>` has to be optional. If omitted, it has to be the one doing `/tp`. This is what you would write normally:
+Suppose you want to add a simple `/tp` command. Important is that the `<from>` has to be optional. If omitted, it has to be the one doing `/tp`. This is what you would write normally:
 ```java
 @AutoCommand(
     aliases = {"teleport"},
@@ -64,7 +64,7 @@ That is a *lot* of code, just to handle all the wrong input. And that doesn't ev
     aliases = {"teleport"},
     description = "Teleports <from> to <to>"
 )
-public void tp(CommandExecuteContext context, @Sender @Name("from") Player from, @Name("to") Player to) {
+public void tp(@Sender @Name("from") Player from, @Name("to") Player to) {
     from.teleport(to);
 }
 ```
