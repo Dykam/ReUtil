@@ -72,7 +72,13 @@ public void tp(@Sender @Name("from") Player from, @Name("to") Player to) {
 The 'usage' is generated on the fly, and all arguments are dynamically parsed based on the methods' signature. Note the use of `@CanSee`. This forces it so any `Player` specified must also be visible to the executing person. `@Sender` notes that this parameter can also be the CommandSender, if necessary and possible. `@Name` is to give it a nice name, if you omit it it will use the default name for `Player` arguments.
 
 ## Events
-*Todo*
+*Todo: Expand past simple and useless code demo*
+```java
+@AutoEventHandler
+private void onPlayerHitPlayer(EntityDamageByEntityEvent event, @Bind("entity") Player damaged, @Bind("damager") Player damager) {
+    damaged.sendMessage(damager.getName() + " damaged out!");
+}
+```
 
 ## Components
 *Todo*
