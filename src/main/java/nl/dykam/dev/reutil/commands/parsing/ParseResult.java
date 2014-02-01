@@ -17,6 +17,12 @@ public class ParseResult<T> extends ExecuteResult {
         return value;
     }
 
+    public <U> ParseResult<U> retypeFailure() {
+        if(isSuccess())
+            throw new IllegalStateException("Can't retype a success-parseresult");
+        return failure(getMessage());
+    }
+
     public static <T> ParseResult<T> success(T value) {
         return new ParseResult<>(value);
     }

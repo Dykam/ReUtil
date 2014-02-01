@@ -14,11 +14,11 @@ public class IntParser extends ArgumentParser<Integer> {
     }
 
     @Override
-    public ParseResult<Integer> parse(CommandExecuteContext context, String argument) {
+    public ParseResult<Integer> parse(CommandExecuteContext context, String argument, String name) {
         try {
             return ParseResult.success(Integer.parseInt(argument));
         } catch (NumberFormatException ex) {
-            return ParseResult.failure();
+            return ParseResult.failure(argument + " is not a valid " + name);
         }
     }
 

@@ -39,11 +39,15 @@ public class ArgumentParserList {
          * @param i
          */
         public ExecuteResult execute(CommandExecuteContext context, int i) {
-            ExecuteResult success = apply(context, context.getArguments()[i]);
-            if (success.isSuccess() && (success = proceed(context, i + 1)).isSuccess()) return success;
-            if (param.isSender() && applySender(context) && (success = proceed(context, i)).isSuccess()) return success;
-            if (param.isOptional() && (success = proceed(context, i)).isSuccess()) return success;
-            return success;
+            ExecuteResult result = apply(context, context.getArguments()[i]);
+            ExecuteResult proceedResult = null;
+            if (result.isSuccess() && (proceedResult = proceed(context, i + 1)).isSuccess())
+                return ExecuteResult.esuccess();
+            if (param.isSender() && applySender(context) && (proceedResult = proceed(context, i)).isSuccess())
+                return ExecuteResult.esuccess();
+            if (param.isOptional() && (proceedResult = proceed(context, i)).isSuccess())
+                return ExecuteResult.esuccess();
+            return result.isFailure() ? result : proceedResult;
         }
 
         private boolean applySender(CommandExecuteContext context) {
@@ -56,7 +60,7 @@ public class ArgumentParserList {
         }
 
         protected ExecuteResult apply(CommandExecuteContext context, String argument) {
-            ParseResult<?> parseResult = param.getParser().parse(context, argument);
+            ParseResult<?> parseResult = param.getParser().parse(context, argument, param.getName());
             if(parseResult.isSuccess()) {
                 Object value = parseResult.getValue();
                 context.getResult().set(index, value);

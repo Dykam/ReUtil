@@ -33,10 +33,10 @@ public class FilterArgumentParser<T> extends ArgumentParser<T[]> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public ParseResult<T[]> parse(CommandExecuteContext context, String argument) {
-        ParseResult<? super T[]> parseResult = superParser.parse(context, argument);
+    public ParseResult<T[]> parse(CommandExecuteContext context, String argument, String name) {
+        ParseResult<? super T[]> parseResult = superParser.parse(context, argument, name);
         if(parseResult.isFailure())
-            return ParseResult.failure();
+            return parseResult.retypeFailure();
         Object value = parseResult.getValue();
         if(value.getClass().isArray()) {
             Object[] values = (Object[]) value;

@@ -18,7 +18,7 @@ public abstract class ArgumentParser<T> {
         this.requiresTarget = requiresTarget;
     }
 
-    public abstract ParseResult<T> parse(CommandExecuteContext context, String argument);
+    public abstract ParseResult<T> parse(CommandExecuteContext context, String argument, String name);
     public abstract List<String> complete(CommandTabContext context, String current);
 
     public boolean requiresTarget() {

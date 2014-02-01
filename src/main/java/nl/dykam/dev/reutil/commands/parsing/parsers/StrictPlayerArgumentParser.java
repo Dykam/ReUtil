@@ -17,7 +17,7 @@ public class StrictPlayerArgumentParser extends ArgumentParser<Player> {
     }
 
     @Override
-    public ParseResult<Player> parse(CommandExecuteContext context, String argument) {
+    public ParseResult<Player> parse(CommandExecuteContext context, String argument, String name) {
         Player player = Bukkit.getPlayerExact(argument);
         if(player != null && context.getSender() instanceof Player) {
             Player sender = (Player) context.getSender();
