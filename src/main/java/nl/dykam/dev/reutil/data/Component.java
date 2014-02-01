@@ -1,5 +1,6 @@
 package nl.dykam.dev.reutil.data;
 
+import com.google.common.base.Preconditions;
 import nl.dykam.dev.reutil.data.annotations.Defaults;
 
 import java.lang.ref.WeakReference;
@@ -16,6 +17,9 @@ public abstract class Component<T> {
 
     @SuppressWarnings("unchecked")
     final void initialize(Object object, Class<?> objectType, ComponentManager context) {
+        Preconditions.checkNotNull(object);
+        Preconditions.checkNotNull(objectType);
+        Preconditions.checkNotNull(context);
         this.objectType = objectType;
         this.object = new WeakReference<>((T)object);
         this.context = context;
