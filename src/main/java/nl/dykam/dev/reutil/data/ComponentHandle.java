@@ -160,4 +160,9 @@ public class ComponentHandle<O, T extends Component<O>> {
     public Class<O> getObjectType() {
         return objectType;
     }
+
+    public void unload(O object) {
+        save(object);
+        storage.remove(object);
+    }
 }

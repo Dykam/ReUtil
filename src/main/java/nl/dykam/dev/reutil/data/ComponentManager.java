@@ -138,7 +138,7 @@ public class ComponentManager {
                         continue;
                     if(!componentHandle.getObjectType().isInstance(player))
                         continue;
-                    componentHandle.save(player);
+                    componentHandle.unload(player);
                 }
             }
         }
