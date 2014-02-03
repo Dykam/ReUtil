@@ -2,8 +2,7 @@ package nl.dykam.dev.reutil.commands;
 
 import nl.dykam.dev.reutil.ReUtilPlugin;
 import nl.dykam.dev.reutil.commands.parsing.*;
-import nl.dykam.dev.reutil.commands.parsing.parsers.IntParser;
-import nl.dykam.dev.reutil.commands.parsing.parsers.StrictPlayerArgumentParser;
+import nl.dykam.dev.reutil.commands.parsing.parsers.*;
 import nl.dykam.dev.reutil.data.ComponentHandle;
 import nl.dykam.dev.reutil.data.ComponentManager;
 import org.bukkit.Bukkit;
@@ -82,6 +81,14 @@ public class CommandManager {
         global = new CommandManager(ReUtilPlugin.instance());
         global.registerArgumentType(Player.class, new StrictPlayerArgumentParser());
         global.registerArgumentType(int.class, new IntParser());
+        global.registerArgumentType(Integer.class, new IntParser());
+        global.registerArgumentType(boolean.class, new BooleanParser());
+        global.registerArgumentType(Boolean.class, new BooleanParser());
+        global.registerArgumentType(double.class, new DoubleParser());
+        global.registerArgumentType(Double.class, new DoubleParser());
+        global.registerArgumentType(float.class, new FloatParser());
+        global.registerArgumentType(Float.class, new FloatParser());
+        global.registerArgumentType(String.class, new StringParser());
         registrations = ComponentManager.get(ReUtilPlugin.instance()).get(PluginCommandManagerRegistration.class);
     }
 

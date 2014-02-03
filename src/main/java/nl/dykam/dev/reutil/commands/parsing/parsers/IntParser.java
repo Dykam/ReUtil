@@ -1,12 +1,8 @@
 package nl.dykam.dev.reutil.commands.parsing.parsers;
 
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;
-import nl.dykam.dev.reutil.commands.CommandTabContext;
 import nl.dykam.dev.reutil.commands.parsing.ArgumentParser;
 import nl.dykam.dev.reutil.commands.parsing.ParseResult;
-
-import java.util.Collections;
-import java.util.List;
 
 public class IntParser extends ArgumentParser<Integer> {
     public IntParser() {
@@ -20,10 +16,5 @@ public class IntParser extends ArgumentParser<Integer> {
         } catch (NumberFormatException ex) {
             return ParseResult.failure(argument + " is not a valid " + name);
         }
-    }
-
-    @Override
-    public List<String> complete(CommandTabContext context, String current) {
-        return Collections.emptyList();
     }
 }
