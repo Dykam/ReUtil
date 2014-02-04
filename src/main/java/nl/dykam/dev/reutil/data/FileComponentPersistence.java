@@ -24,17 +24,17 @@ import java.util.Set;
 
 public class FileComponentPersistence<T extends Component<?>> implements ComponentPersistence<T> {
     private final Class<?> applicableTo;
-    private ComponentManager context;
+    private ComponentHandle<?, T> handle;
     private Class<T> type;
     private static Set<Class<? extends Component>> registred = new HashSet<>();
 
-    public FileComponentPersistence(ComponentManager context, Class<T> type) {
+    public FileComponentPersistence(ComponentHandle<?, T> handle, Class<T> type) {
+        this.handle = handle;
         try {
             register(type);
         } catch (NotSerializableException e) {
             throw new IllegalArgumentException("component", e);
         }
-        this.context = context;
         this.type = type;
         applicableTo = ComponentInfo.getApplicableTo(type);
     }
@@ -42,7 +42,7 @@ public class FileComponentPersistence<T extends Component<?>> implements Compone
     @Override
     @SuppressWarnings("unchecked")
     public T load(Object object) {
-        File file = getFile(context, type, object);
+        File file = getFile(handle.getContext(), type, object);
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(file);
         if(configuration == null) {
             return null;
@@ -51,11 +51,11 @@ public class FileComponentPersistence<T extends Component<?>> implements Compone
         try {
             component = (T) configuration.get(type.getName());
         } catch (ClassCastException ex) {
-            ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "Failed to load component of " + context.getPlugin().getName());
+            ReUtilPlugin.getMessage().warn(Bukkit.getConsoleSender(), "Failed to load component of " + handle.getContext().getPlugin().getName());
             return null;
         }
         if(component != null)
-            component.initialize(object, applicableTo, context);
+            component.initialize(object, applicableTo, handle);
         return component;
     }
 
@@ -75,7 +75,7 @@ public class FileComponentPersistence<T extends Component<?>> implements Compone
 
     @Override
     public boolean remove(Object object) {
-        File file = getFile(context, type, object);
+        File file = getFile(handle.getContext(), type, object);
         File directory = file.getParentFile();
         if(!file.delete()) {
             return false;

@@ -6,23 +6,24 @@ import nl.dykam.dev.reutil.data.annotations.Defaults;
 import java.lang.ref.WeakReference;
 
 @Defaults
-public abstract class Component<T> {
-    private transient WeakReference<T> object;
+public abstract class Component<O> {
+    private transient WeakReference<O> object;
     private transient Class<?> objectType;
     private transient ComponentManager context;
+    private transient ComponentHandle<O, Component<O>> handle;
 
-    public T getObject() {
+    public O getObject() {
         return object.get();
     }
 
     @SuppressWarnings("unchecked")
-    final void initialize(Object object, Class<?> objectType, ComponentManager context) {
+    final void initialize(Object object, Class<?> objectType, ComponentHandle<?, ?> handle) {
         Preconditions.checkNotNull(object);
         Preconditions.checkNotNull(objectType);
         Preconditions.checkNotNull(context);
         this.objectType = objectType;
-        this.object = new WeakReference<>((T)object);
-        this.context = context;
+        this.object = new WeakReference<>((O)object);
+        this.handle = (ComponentHandle<O, Component<O>>)handle;
 
         onInitialize();
     }
@@ -30,7 +31,11 @@ public abstract class Component<T> {
     protected void onInitialize() {}
 
     public ComponentManager getContext() {
-        return context;
+        return handle.getContext();
+    }
+
+    public ComponentHandle<O, Component<O>> getHandle() {
+        return handle;
     }
 
     /**

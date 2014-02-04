@@ -61,7 +61,7 @@ public class ComponentHandle<O, T extends Component<O>> {
     }
 
     public T build(O object) {
-        return putIfNotNull(object, builder.construct(context, object));
+        return putIfNotNull(object, builder.construct(this, object));
     }
 
     public void saveAll() {
@@ -117,7 +117,7 @@ public class ComponentHandle<O, T extends Component<O>> {
 
     private ComponentPersistence<T> getDefaultPersistence() {
         if (persists) {
-            return new FileComponentPersistence<>(context, type);
+            return new FileComponentPersistence<>(this, type);
         } else {
             return new VoidComponentPersistence<>(type);
         }
@@ -164,5 +164,9 @@ public class ComponentHandle<O, T extends Component<O>> {
     public void unload(O object) {
         save(object);
         storage.remove(object);
+    }
+
+    public ComponentManager getContext() {
+        return context;
     }
 }

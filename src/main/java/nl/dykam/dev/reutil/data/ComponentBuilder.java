@@ -32,12 +32,12 @@ public class ComponentBuilder<T extends Component<?>> {
         return (ComponentBuilder<T>) builders.get(type);
     }
 
-    public T construct(ComponentManager context, Object object) {
+    public T construct(ComponentHandle<?, ?> handle, Object object) {
         if(!applicableTo.isInstance(object))
             throw new IllegalArgumentException("Component does not support object of type " + object.getClass().getSimpleName());
 
         for (Class<? extends Component> requiredComponent : required) {
-            context.ensure(object, requiredComponent);
+            handle.getContext().ensure(object, requiredComponent);
         }
 
         T component;
@@ -46,7 +46,7 @@ public class ComponentBuilder<T extends Component<?>> {
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException("This should never happen, report to developer.", e);
         }
-        component.initialize(object, applicableTo, context);
+        component.initialize(object, applicableTo, handle);
         return component;
     }
 
