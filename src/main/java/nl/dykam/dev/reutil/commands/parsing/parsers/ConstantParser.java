@@ -3,6 +3,7 @@ package nl.dykam.dev.reutil.commands.parsing.parsers;
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;
 import nl.dykam.dev.reutil.commands.CommandTabContext;
 import nl.dykam.dev.reutil.commands.parsing.ArgumentParser;
+import nl.dykam.dev.reutil.commands.parsing.ArgumentParserTree;
 import nl.dykam.dev.reutil.commands.parsing.ParseResult;
 import org.apache.commons.lang.StringUtils;
 
@@ -19,7 +20,7 @@ public class ConstantParser<T> extends ArgumentParser<T> {
     private final ArgumentParser<T> superParser;
 
     protected ConstantParser(Set<String> defaults, ArgumentParser<T> superParser) {
-        super(determineDefaultName(defaults, superParser), superParser.requiresTarget());
+        super(determineDefaultName(defaults, superParser), superParser.requiresTarget(), defaults.size() == 1 ? ArgumentParserTree.Type.CONSTANT : ArgumentParserTree.Type.FIXED_CHOICE);
         this.defaults = defaults;
         this.superParser = superParser;
     }

@@ -13,4 +13,5 @@ public @interface AutoCommand {
     public String permission() default "";
     public String permissionMessage() default "";
     public String description() default "";
+    public Class<?>[] children() default {};
 }

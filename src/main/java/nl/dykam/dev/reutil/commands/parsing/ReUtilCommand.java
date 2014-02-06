@@ -50,9 +50,9 @@ public class ReUtilCommand extends Command implements CommandExecutor {
 
         ArgumentParserList list = getList();
         ExecuteResult parseResult = list.parse(context);
-        if(parseResult.isFailure()) {
+        if (parseResult.isFailure()) {
             String message = parseResult.getMessage();
-            if(message == null) message = "Failed to execute /" + s + " because one or more arguments where invalid";
+            if (message == null) message = "Failed to execute /" + s + " because one or more arguments where invalid";
             Messenger.get(plugin).failure(commandSender, message);
             return false;
         }

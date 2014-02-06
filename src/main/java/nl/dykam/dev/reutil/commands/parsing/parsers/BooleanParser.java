@@ -3,6 +3,7 @@ package nl.dykam.dev.reutil.commands.parsing.parsers;
 import nl.dykam.dev.reutil.commands.CommandExecuteContext;
 import nl.dykam.dev.reutil.commands.CommandTabContext;
 import nl.dykam.dev.reutil.commands.parsing.ArgumentParser;
+import nl.dykam.dev.reutil.commands.parsing.ArgumentParserTree;
 import nl.dykam.dev.reutil.commands.parsing.ParseResult;
 
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class BooleanParser extends ArgumentParser<Boolean> {
     public BooleanParser() {
-        super("true|false");
+        super("true|false", ArgumentParserTree.Type.FREE_SYNTAX);
     }
 
     @Override

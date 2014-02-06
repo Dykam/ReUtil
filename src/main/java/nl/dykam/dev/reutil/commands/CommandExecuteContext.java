@@ -74,4 +74,8 @@ public class CommandExecuteContext {
     public void setTarget(Player target) {
         this.target = target;
     }
+
+    public String getArgument(int index) {
+        return arguments[index];
+    }
 }

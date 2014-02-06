@@ -49,4 +49,5 @@ public class ParseResult<T> extends ExecuteResult {
     public static <T> ParseResult<T> noTarget() {
         return failure("No target supplied. Execute either ingame or provide a user.");
     }
+
 }

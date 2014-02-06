@@ -14,19 +14,19 @@ public class FilterArgumentParser<T> extends ArgumentParser<T[]> {
     private final Class<T> type;
 
     public FilterArgumentParser(ArgumentParser<? super T[]> superParser, Class<T> type, String defaultName, boolean requiresTarget) {
-        super(defaultName, requiresTarget);
+        super(defaultName, requiresTarget, superParser.getType());
         this.superParser = superParser;
         this.type = type;
     }
 
     public FilterArgumentParser(ArgumentParser<? super T[]> superParser, Class<T> type, String defaultName) {
-        super(defaultName);
+        super(defaultName, superParser.getType());
         this.superParser = superParser;
         this.type = type;
     }
 
     public FilterArgumentParser(ArgumentParser<? super T[]> superParser, Class<T> type) {
-        super(superParser.getDefaultName(), superParser.requiresTarget());
+        super(superParser.getDefaultName(), superParser.requiresTarget(), superParser.getType());
         this.superParser = superParser;
         this.type = type;
     }

@@ -71,4 +71,10 @@ public class ParsedMethod {
     public CommandHandler getHandler() {
         return handler;
     }
+
+    public void addToTree(ArgumentParserTree tree) {
+        for (ParsedMethodParam param : params) {
+            tree = tree.add(null, param);
+        }
+    }
 }

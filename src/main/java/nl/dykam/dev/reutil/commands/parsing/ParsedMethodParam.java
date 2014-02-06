@@ -38,4 +38,30 @@ class ParsedMethodParam {
     public Object getUsingName() {
         return optional | sender ? '[' + name + ']' : '<' + name + '>';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ParsedMethodParam that = (ParsedMethodParam) o;
+
+        if (canSee != that.canSee) return false;
+        if (optional != that.optional) return false;
+        if (sender != that.sender) return false;
+        if (!name.equals(that.name)) return false;
+        if (!parser.equals(that.parser)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + parser.hashCode();
+        result = 31 * result + (optional ? 1 : 0);
+        result = 31 * result + (sender ? 1 : 0);
+        result = 31 * result + (canSee ? 1 : 0);
+        return result;
+    }
 }
