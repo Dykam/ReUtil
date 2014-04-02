@@ -37,7 +37,7 @@ public class ComponentManager {
         setTimeout(componentConfig.getInterval());
     }
 
-    public <O, T extends Component<O>> ComponentHandle<O, T> get(Class<T> type) {
+    public <O, T extends Component<O>> ComponentHandle<O, T> getHandle(Class<T> type) {
         ComponentHandle<O, T> handle = handles.get(type);
         if(handle != null)
             return handle;
@@ -60,7 +60,7 @@ public class ComponentManager {
     }
 
     public <O, T extends Component<O>> T get(O object, Class<T> type) {
-        return get(type).get(object);
+        return getHandle(type).get(object);
     }
 
     public ComponentConfig config() {
@@ -72,7 +72,7 @@ public class ComponentManager {
     }
 
     public void ensure(Object object, Class<? extends Component> type) {
-        get(type).ensure(object);
+        getHandle(type).ensure(object);
     }
 
     private static Map<Plugin, ComponentManager> componentsCache = new HashMap<>();

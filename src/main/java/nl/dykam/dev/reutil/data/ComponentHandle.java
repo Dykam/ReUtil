@@ -5,6 +5,8 @@ import nl.dykam.dev.reutil.data.annotations.Instantiation;
 import nl.dykam.dev.reutil.data.annotations.SaveMoment;
 import nl.dykam.dev.reutil.utils.TypeUtils;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class ComponentHandle<O, T extends Component<O>> {
@@ -21,6 +23,8 @@ public class ComponentHandle<O, T extends Component<O>> {
     private ComponentPersistence<T> persistence;
     private ObjectInfo objectInfo;
     private boolean smartSaving;
+
+    private transient Map<Class<?>, ComponentHandle<O, ? extends Component<O>>> requiredComponentHandles;
 
     public ComponentHandle(Class<T> type, ComponentManager context) {
         this(type, context, null, null, null, null);
@@ -42,6 +46,12 @@ public class ComponentHandle<O, T extends Component<O>> {
         setStorage(storage);
         setPersistence(persistence);
         setObjectInfo(objectInfo);
+
+        requiredComponentHandles = new HashMap<>();
+        for (Class<? extends Component> componentType : ComponentInfo.getRequired(type)) {
+            requiredComponentHandles.put(type, context.getHandle(type));
+        }
+
     }
 
     public T get(O object) {
@@ -168,5 +178,18 @@ public class ComponentHandle<O, T extends Component<O>> {
 
     public ComponentManager getContext() {
         return context;
+    }
+
+    /**
+     * Similar to ComponentManager.getHandle, but optimized for @Require'd components
+     * @param componentType Class of the component
+     * @return The component
+     */
+    @SuppressWarnings("unchecked")
+    public <U extends Component<O>> ComponentHandle<O, U> getHandle(Class<U> componentType) {
+        ComponentHandle<O, U> componentHandle = (ComponentHandle<O, U>) requiredComponentHandles.get(componentType);
+        if(componentHandle == null)
+            componentHandle = getContext().getHandle(componentType);
+        return componentHandle;
     }
 }

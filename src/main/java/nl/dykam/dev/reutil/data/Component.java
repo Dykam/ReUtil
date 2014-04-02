@@ -39,6 +39,16 @@ public abstract class Component<O> {
     }
 
     /**
+     * Gets components for the current object. Optimized for @Require'd components
+     * @param componentType Class of the component
+     * @return The component
+     */
+    public <T extends Component<O>> T getComponent(Class<T> componentType) {
+        ComponentHandle<O, T> handle = getHandle().getHandle(componentType);
+        return handle.get(getObject());
+    }
+
+    /**
      * The type of the object this Component is meant to support. This can be a superclass of #getObject()
      * @return The type of the object this Component is meant to support
      */
