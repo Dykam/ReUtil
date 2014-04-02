@@ -103,10 +103,14 @@ public class ComponentManager {
     private static class Listeners implements Listener {
         @AutoEventHandler
         private void onPluginDisable(PluginDisableEvent event, @Bind("plugin") Plugin plugin) {
-            for (ComponentHandle<?, ?> handle : get(plugin).handles.values()) {
+            ComponentManager componentManager = componentsCache.get(plugin);
+            if(componentManager == null)
+                return;
+            for (ComponentHandle<?, ?> handle : componentManager.handles.values()) {
                 if(handle.getSaveMoments().contains(SaveMoment.PluginUnload))
                     handle.saveAll();
             }
+            componentsCache.remove(plugin);
         }
 
         /**
@@ -157,6 +161,7 @@ public class ComponentManager {
     private void setTimeout(int interval) {
         if(saveIntervalRunner != null)
             saveIntervalRunner.cancel();
+
         saveIntervalRunner = Bukkit.getScheduler().runTaskTimer(getPlugin(), new Runnable() {
             @Override
             public void run() {
